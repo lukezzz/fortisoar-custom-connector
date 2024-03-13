@@ -1,0 +1,234 @@
+{
+  "name": "f5-lb",
+  "label": "F5 负载均衡",
+  "description": "",
+  "publisher": "Hftech",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "version": "1.0.0",
+  "category": "firewall",
+  "icon_small_name": "small_f5_logo.png",
+  "icon_large_name": "large_f5_logo.png",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "title": "Server URL / Hostname",
+        "name": "server_url",
+        "type": "text",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "value": ""
+      },
+      {
+        "title": "Verify SSL",
+        "name": "verify_ssl",
+        "type": "checkbox",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "value": true
+      },
+      {
+        "title": "VS Destination Subnet",
+        "name": "vs_dest_subnet",
+        "type": "text",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "value": ""
+      }
+    ]
+  },
+  "operations": [
+    {
+      "title": "新建Pool",
+      "operation": "create_pool",
+      "description": "创建一个新的Pool, Pool members为list, 并且需要包含IP地址和端口",
+      "category": "containment",
+      "annotation": "create_pool",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Partition",
+          "name": "partition",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "Common"
+        },
+        {
+          "title": "Monitor",
+          "name": "monitor",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "/Common/tcp"
+        },
+        {
+          "title": "Service Name",
+          "name": "service_name",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "VS Port",
+          "name": "vs_port",
+          "type": "integer",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Members",
+          "name": "pool_members",
+          "type": "json",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "新建Virtual Server",
+      "operation": "create_vs",
+      "description": "创建一个新的Virtual Server",
+      "category": "containment",
+      "annotation": "create_vs",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Partition",
+          "name": "partition",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "Common"
+        },
+        {
+          "title": "VS Name",
+          "name": "vs_name",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Destination Port",
+          "name": "vs_port",
+          "type": "text",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Protocol",
+          "name": "ipProtocol",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Http Profiles",
+          "name": "httpProfiles",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "SSL Profiles",
+          "name": "sslProfiles",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Persist",
+          "name": "persist",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Source Address Translation",
+          "name": "sourceAddressTranslation",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "automap"
+        },
+        {
+          "title": "Pool Name",
+          "name": "pool",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    }
+  ]
+}

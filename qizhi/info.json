@@ -1,0 +1,86 @@
+{
+  "name": "qizhi",
+  "label": "齐治堡垒机",
+  "version": "1.0.0",
+  "description": "通过该Connector可以获取齐治堡垒机上相应设备的口令",
+  "publisher": "Hftech",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "category": "",
+  "icon_small_name": "",
+  "icon_large_name": "",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "name": "api_server_ip",
+        "title": "服务器IP",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "堡垒机IP, eg: http://x.x.x.x:port"
+      },
+      {
+        "name": "admin_user",
+        "title": "用户名",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "admin username"
+      },
+      {
+        "name": "admin_pwd",
+        "title": "密码",
+        "type": "password",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "admin password"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "get_credential",
+      "title": "Get Credential",
+      "annotation": "get_credential",
+      "description": "获取设备的口令, 用于后续操作",
+      "category": "investigation",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "output_schema": {
+        "code": 0,
+        "msg": "",
+        "data": {
+          "address": "",
+          "sysTypeName": "",
+          "accountName": "",
+          "password": ""
+        }
+      },
+      "parameters": [
+        {
+          "name": "account",
+          "title": "account",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "设备用户名"
+        },
+        {
+          "name": "address",
+          "title": "address",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "设备IP"
+        }
+      ]
+    }
+  ]
+}
