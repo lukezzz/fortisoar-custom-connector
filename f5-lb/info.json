@@ -229,6 +229,234 @@
         }
       ],
       "enabled": true
+    },
+    {
+      "title": "新建GTM Server",
+      "operation": "create_gtm_server",
+      "description": "创建一个新的GTM Server",
+      "category": "containment",
+      "annotation": "create_gtm_server",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Partition",
+          "name": "partition",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "Common"
+        },
+        {
+          "title": "Service Name",
+          "name": "service_name",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "DataCenter",
+          "name": "datacenter",
+          "type": "text",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Monitor",
+          "name": "monitor",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Product",
+          "name": "product",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Virtual Servers",
+          "name": "virtual_servers",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "GTM Servers",
+          "name": "gtm_servers",
+          "type": "json",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "新建GTM Pool",
+      "operation": "create_gtm_pool",
+      "description": "创建一个新的GTM Pool",
+      "category": "containment",
+      "annotation": "create_gtm_pool",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Partition",
+          "name": "partition",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "Common"
+        },
+        {
+          "title": "Service Name",
+          "name": "service_name",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Load Balancing Mode",
+          "name": "loadBalancingMode",
+          "type": "text",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Members",
+          "name": "members",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "新建GTM Wide IP",
+      "operation": "create_gtm_wide_ip",
+      "description": "创建一个新的GTM Wide IP",
+      "category": "containment",
+      "annotation": "create_gtm_wide_ip",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Partition",
+          "name": "partition",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "Common"
+        },
+        {
+          "title": "Service Name",
+          "name": "service_name",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Type",
+          "name": "record_type",
+          "type": "text",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "a"
+        },
+        {
+          "title": "Pools",
+          "name": "pools",
+          "type": "json",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
     }
   ]
 }

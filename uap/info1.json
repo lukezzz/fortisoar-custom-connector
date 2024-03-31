@@ -1,0 +1,173 @@
+{
+  "name": "uap",
+  "label": "uap",
+  "version": "1.0.2",
+  "description": "uap",
+  "publisher": "Hftech",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "category": "",
+  "icon_small_name": "",
+  "icon_large_name": "",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "name": "base_url",
+        "title": "Base URL",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "Base URL"
+      },
+      {
+        "name": "alert_id",
+        "title": "Alert ID",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "Alert ID"
+      },
+      {
+        "name": "host_name",
+        "title": "Host Name",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Host Name"
+      },
+      {
+        "name": "host_ip",
+        "title": "Host IP",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Host IP"
+      },
+      {
+        "name": "host_id",
+        "title": "Host ID",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "Host ID"
+      },
+      {
+        "name": "contact",
+        "title": "Contact",
+        "type": "multiselect",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "告警联系人",
+        "apiOperation": "get_users"
+      },
+      {
+        "name": "app_contact",
+        "title": "APP Contact",
+        "type": "multiselect",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "应用负责人",
+        "apiOperation": "get_users"
+      },
+      {
+        "name": "device_contact",
+        "title": "Device Contact",
+        "type": "multiselect",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "设备负责人",
+        "apiOperation": "get_users"
+      },
+      {
+        "name": "send_to",
+        "title": "Send To",
+        "type": "multiselect",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "数组，直接发送的告警联系人数组，与监控系统保持一致。",
+        "apiOperation": "get_users"
+      },
+      {
+        "name": "alert_type",
+        "title": "Alert Type",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "第三方告警平台名称"
+      },
+      {
+        "name": "alert_url",
+        "title": "Alert URL",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": false,
+        "description": "第三方告警平台地址，跳转url"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "send_alert",
+      "title": "Send Alert",
+      "annotation": "send_alert",
+      "description": "send alert",
+      "category": "investigation",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "parameters": [
+        {
+          "name": "priority",
+          "title": "Priority",
+          "type": "select",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "options": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "-1"
+          ],
+          "description": "告警级别：0-未知，1信息，2-警告，3-异常，4严重, 5灾难，-1恢复\n恢复id与告警id一致"
+        },
+        {
+          "name": "issue",
+          "title": "Issue",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Issue"
+        }
+      ],
+      "output_schema": {}
+    },
+    {
+      "operation": "get_users",
+      "title": "Get Users",
+      "description": "Get available Users",
+      "category": "investigation",
+      "annotation": "get_users",
+      "output_schema": {},
+      "enabled": true,
+      "visible": false,
+      "parameters": []
+    }
+  ]
+}

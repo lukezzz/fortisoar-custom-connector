@@ -1,0 +1,411 @@
+{
+  "name": "forti-fw",
+  "label": "Fortigate防火墙",
+  "description": "",
+  "publisher": "Hftech",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "version": "1.0.0",
+  "category": "firewall",
+  "icon_small_name": "Fortinet_small.png",
+  "icon_large_name": "Fortinet_medium.png",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "title": "Host",
+        "name": "url",
+        "type": "text",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "tooltip": "ip or name (fqdn) can include a port like 10.40.40.40:8443"
+      },
+      {
+        "title": "Verify SSL",
+        "name": "verify_ssl",
+        "type": "checkbox",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "value": true,
+        "description": "Specifies whether the SSL certificate for the server is to be verified or not. By default, this option is set as True."
+      },
+      {
+        "title": "VDOM",
+        "name": "vdom",
+        "type": "text",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "tooltip": "Provide VDOM CSV or List format, if VDOM mode enabled. These used for actions related to IP addresses",
+        "description": "VDOMs, in the CSV or List format, if the VDOM mode is enabled.",
+        "value": "root"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "title": "查询Interface",
+      "operation": "route_lookup",
+      "description": "根据IP查询所在的Interface",
+      "category": "containment",
+      "annotation": "route_lookup",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "IP",
+          "name": "query_ip",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "检查当前HA状态",
+      "operation": "get_ha_status",
+      "description": "检查当前HA状态, 返回HA状态信息",
+      "category": "containment",
+      "annotation": "get_ha_status",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "创建Address对象",
+      "operation": "create_address",
+      "description": "查询并创建Address",
+      "category": "containment",
+      "annotation": "create_address",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Address List",
+          "name": "addresses",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "创建Service对象",
+      "operation": "create_service",
+      "description": "查询Service",
+      "category": "containment",
+      "annotation": "create_service",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Protocol List",
+          "name": "protocol_list",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Port List",
+          "name": "port_list",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "创建Policy",
+      "operation": "create_policy",
+      "description": "创建Policy",
+      "category": "containment",
+      "annotation": "create_policy",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Policy Name",
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Action",
+          "name": "action",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "accept"
+        },
+        {
+          "title": "Incoming Interface",
+          "name": "srcintf",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "accept"
+        },
+        {
+          "title": "Outgoing Interface",
+          "name": "dstintf",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "accept"
+        },
+        {
+          "title": "Source",
+          "name": "srcaddr",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "accept"
+        },
+        {
+          "title": "Destination",
+          "name": "dstaddr",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "accept"
+        },
+        {
+          "title": "Service",
+          "name": "service",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Schedule",
+          "name": "schedule",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "always"
+        },
+        {
+          "title": "Log Traffic",
+          "name": "logtraffic",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "all"
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    }
+  ]
+}

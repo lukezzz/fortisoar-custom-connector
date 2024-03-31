@@ -1,0 +1,126 @@
+{
+  "name": "zdns",
+  "label": "ZDNS网络服务系统",
+  "version": "1.0.2",
+  "description": "ZDNS网络服务系统",
+  "publisher": "Hftech",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "category": "",
+  "icon_small_name": "",
+  "icon_large_name": "",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "name": "base_url",
+        "title": "Base URL",
+        "type": "text",
+        "editable": true,
+        "visible": true,
+        "required": true,
+        "description": "Base URL"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "add_domain",
+      "title": "Add Domain",
+      "annotation": "add_domain",
+      "description": "descriptionTextField",
+      "category": "investigation",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "output_schema": {},
+      "parameters": [
+        {
+          "name": "username",
+          "title": "username",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "username"
+        },
+        {
+          "name": "password",
+          "title": "password",
+          "type": "Password",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "password"
+        },
+        {
+          "name": "View Name",
+          "title": "view_name",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "view_name"
+        },
+        {
+          "name": "Domain Name",
+          "title": "domain_name",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "domain_name"
+        },
+        {
+          "name": "Domain IP",
+          "title": "domain_ip",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Domain IP"
+        }
+      ]
+    },
+    {
+      "operation": "find_domain",
+      "title": "Find Domain",
+      "annotation": "find_domain",
+      "description": "descriptionTextField",
+      "category": "investigation",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "output_schema": {},
+      "parameters": [
+        {
+          "name": "username",
+          "title": "username",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "username"
+        },
+        {
+          "name": "password",
+          "title": "password",
+          "type": "Password",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "password"
+        },
+        {
+          "name": "Domain Name",
+          "title": "domain_name",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "domain_name"
+        }
+      ]
+    }
+  ]
+}

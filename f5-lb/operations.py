@@ -10,6 +10,9 @@ class Endpoint:
     pool = "/mgmt/tm/ltm/pool"
     vs = "/mgmt/tm/ltm/virtual"
     vs_address = "/mgmt/tm/ltm/virtual-address"
+    gtm_server = "/mgmt/tm/gtm/server"
+    gtm_pool = "/mgmt/tm/gtm/pool"
+    gtm_wide_ip = "/mgmt/tm/gtm/wideip"
 
 
 def create_pool(config, params):
@@ -173,6 +176,119 @@ def create_vs(config, params):
         raise ConnectorError(f"Failed to create vs: {response.text}")
 
 
+def create_gtm_server(config, params):
+    username = params.get("username")
+    password = params.get("password")
+
+    client = F5Client(config, username, password)
+
+    service_name = params.get("service_name")
+
+    name = service_name
+    # check if gtm server exists, return gtm server
+    check_gtm_server_url = f"{Endpoint.gtm_server}/{name}"
+    check_gtm_server_result = client.run(check_gtm_server_url, method="GET")
+    if check_gtm_server_result.status_code == 200 and check_gtm_server_result.json():
+        return check_gtm_server_result.json()
+
+    # create gtm server
+    partition = params.get("partition")
+    datacenter = params.get("datacenter")
+    monitor = params.get("monitor")
+    product = params.get("product")
+    virtual_servers = params.get("virtual_servers")
+    gtm_servers = params.get("gtm_servers")
+    for server in gtm_servers:
+        # verify name should be IP address
+        try:
+            ip_address(server["name"])
+        except ValueError:
+            raise ConnectorError("Invalid IP Address")
+
+    post_data = {
+        "name": name,
+        "partition": partition,
+        "datacenter": datacenter,
+        "monitor": monitor,
+        "product": product,
+        "virtualServers": virtual_servers,
+        "gtmServers": gtm_servers,
+    }
+    logger.debug(post_data)
+
+    response = client.run(Endpoint.gtm_server, method="POST", data=post_data)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise ConnectorError(f"Failed to create gtm server: {response.text}")
+
+
+def create_gtm_pool(config, params):
+    username = params.get("username")
+    password = params.get("password")
+
+    client = F5Client(config, username, password)
+
+    service_name = params.get("service_name")
+
+    name = service_name
+    # check if gtm pool exists, return gtm pool
+    check_gtm_pool_url = f"{Endpoint.gtm_pool}/{name}"
+    check_gtm_pool_result = client.run(check_gtm_pool_url, method="GET")
+    if check_gtm_pool_result.status_code == 200 and check_gtm_pool_result.json():
+        return check_gtm_pool_result.json()
+
+    # create gtm pool
+    loadBalancingMode = params.get("loadBalancingMode")
+    members = params.get("members")
+
+    post_data = {
+        "name": name,
+        "loadBalancingMode": loadBalancingMode,
+        "members": members,
+    }
+    logger.debug(post_data)
+
+    response = client.run(Endpoint.gtm_pool, method="POST", data=post_data)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise ConnectorError(f"Failed to create gtm pool: {response.text}")
+
+
+def create_gtm_wide_ip(config, params):
+    username = params.get("username")
+    password = params.get("password")
+
+    client = F5Client(config, username, password)
+
+    service_name = params.get("service_name")
+
+    name = service_name
+
+    record_type = params.get("record_type", "a")
+    # check if gtm wide ip exists, return gtm wide ip
+    check_gtm_wide_ip_url = f"{Endpoint.gtm_wide_ip}/{record_type}/{name}"
+    check_gtm_wide_ip_result = client.run(check_gtm_wide_ip_url, method="GET")
+    if check_gtm_wide_ip_result.status_code == 200 and check_gtm_wide_ip_result.json():
+        return check_gtm_wide_ip_result.json()
+
+    # create gtm wide ip
+    pools = params.get("pools")
+
+    post_data = {
+        "name": name,
+        "pools": pools,
+    }
+    logger.debug(post_data)
+
+    response = client.run(Endpoint.gtm_wide_ip, method="POST", data=post_data)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise ConnectorError(f"Failed to create gtm wide ip: {response.text}")
+
+
 def get_config(config):
     server_url = config.get("server_url")
     verify_ssl = config.get("verify_ssl")
@@ -214,4 +330,7 @@ def _check_health(config):
 operations = {
     "create_pool": create_pool,
     "create_vs": create_vs,
+    "create_gtm_server": create_gtm_server,
+    "create_gtm_pool": create_gtm_pool,
+    "create_gtm_wide_ip": create_gtm_wide_ip,
 }

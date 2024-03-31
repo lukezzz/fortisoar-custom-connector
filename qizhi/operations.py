@@ -1,6 +1,7 @@
 """
 This file will be auto-generated on each "new operation action", so avoid editing in this file.
 """
+
 import re
 import base64
 
@@ -20,10 +21,7 @@ def get_credential(config, params):
     account = params["account"]
     address = params["address"]
     data = {"userName": config["admin_user"], "account": account, "address": address}
-    resp = c.connect("GET", "account/queryWorksheetPassword", data=data)
-    if resp["code"] == 0 and not resp["data"].get("password"):
-        return {"code": 1004, "msg": str(resp["data"]), "data": ""}
-    return resp
+    return c.connect("GET", "account/queryWorksheetPassword", data=data)
     # # if re.search("无法获取|不具备查看", str(resp)):
     # #     result["msg"] = resp
     # #     result["status"] = "invalid"
@@ -37,8 +35,8 @@ def _check_health(config):
     c = QizhiClient(config)
     resp = c.login()
     if resp["code"] != 0:
-        logger.exception('{}'.format(resp["msg"]))
-        raise ConnectorError('{}'.format(resp["msg"]))
+        logger.exception("{}".format(resp["msg"]))
+        raise ConnectorError("{}".format(resp["msg"]))
 
 
 operations = {
