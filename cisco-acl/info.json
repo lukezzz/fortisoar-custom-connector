@@ -1,0 +1,168 @@
+{
+  "name": "cisco-acl",
+  "label": "Cisco NXOS/IOS ACL",
+  "version": "1.0.0",
+  "description": "This integration allows you to manage access control lists (ACLs) on Cisco switches.",
+  "publisher": "Hftech",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "category": "Firewall",
+  "icon_small_name": "cisco_small.jpg",
+  "icon_large_name": "cisco_large.jpg",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "title": "Hostname",
+        "type": "text",
+        "name": "hostname",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "value": ""
+      },
+      {
+        "title": "Username",
+        "type": "text",
+        "name": "username",
+        "required": true,
+        "editable": true,
+        "visible": true
+      },
+      {
+        "title": "Verify SSL",
+        "name": "verify_ssl",
+        "type": "checkbox",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "value": true
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "get_route_info",
+      "title": "Check IP/Subnet belongs to which Vlan",
+      "description": "Check IP/Subnet belongs to which Vlan",
+      "category": "investigation",
+      "annotation": "get_route_info",
+      "output_schema": {},
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Hostname",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "hostname"
+        },
+        {
+          "title": "Username",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        },
+        {
+          "title": "IP or Subnet",
+          "required": true,
+          "editable": true,
+          "tooltip": "IP address or subnet to check",
+          "visible": true,
+          "type": "text",
+          "name": "ip_addr"
+        }
+      ]
+    },
+    {
+      "operation": "config_acl",
+      "title": "Add ACL command",
+      "description": "Add ACL command",
+      "category": "exec",
+      "annotation": "config_acl",
+      "output_schema": {},
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Hostname",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "hostname"
+        },
+        {
+          "title": "Username",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        },
+        {
+          "title": "ACL Commands",
+          "required": true,
+          "editable": true,
+          "tooltip": "ACL commands to be executed",
+          "visible": true,
+          "type": "json",
+          "name": "commands"
+        }
+      ]
+    },
+    {
+      "operation": "save_config",
+      "title": "Save Configuration",
+      "description": "Save Configuration",
+      "category": "exec",
+      "annotation": "save_config",
+      "output_schema": {},
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Hostname",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "hostname"
+        },
+        {
+          "title": "Username",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        }
+      ]
+    }
+  ]
+}
