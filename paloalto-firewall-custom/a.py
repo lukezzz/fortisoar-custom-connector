@@ -1,1 +1,0 @@
-export https_proxy=http://172.16.60.201:7890 http_proxy=http://172.16.60.201:7890 all_proxy=socks5://172.16.60.201:7890

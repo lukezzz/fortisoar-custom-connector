@@ -1,0 +1,449 @@
+{
+  "name": "paloalto-fw",
+  "version": "1.0.0",
+  "label": "PA Firewall",
+  "description": "",
+  "publisher": "Hftech",
+  "icon_small_name": "small.png",
+  "icon_large_name": "large.png",
+  "id": 301,
+  "configuration": {
+    "fields": [
+      {
+        "title": "Server URL",
+        "description": "IP address or Hostname of the Palo Alto Firewall",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "type": "text",
+        "name": "server_url"
+      },
+      {
+        "title": "Virtual System",
+        "tooltip": "Specify the Virtual System (vsys) ID to access the Palo Alto Firewall. By default it is set as vsys1.",
+        "description": "Virtual System (vsys) ID to access the Palo Alto Firewall. By default, this is set as vsys1.",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "type": "text",
+        "name": "virtual_sys",
+        "value": "vsys1"
+      },
+      {
+        "title": "API Type",
+        "tooltip": "Select API type to execute connector actions",
+        "description": "Type of API that you want to use to run connector actions. You can choose between XML APIs or REST APIs. If you choose 'REST APIs', then from the Product Version field, select the PAN-OS version that will be used to perform the connector actions.",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "options": [
+          "XML APIs",
+          "REST APIs"
+        ],
+        "value": "REST APIs",
+        "type": "select",
+        "name": "api_type",
+        "onchange": {
+          "REST APIs": [
+            {
+              "title": "Product Version",
+              "tooltip": "Select the PAN-OS version to use for performing connector actions.",
+              "description": "Select the PAN-OS version to use for performing connector actions.",
+              "required": true,
+              "editable": true,
+              "visible": true,
+              "options": [
+                "v9.0",
+                "v9.1",
+                "v10.0",
+                "v10.1",
+                "v10.2"
+              ],
+              "value": "v10.2",
+              "type": "select",
+              "name": "version"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  "operations": [
+    {
+      "operation": "create_address",
+      "title": "Create IP Address Object",
+      "description": "Creates an IP address object in Palo Alto Firewall based on the name of IP address, address type, or other input parameters that you have specified.",
+      "enabled": true,
+      "category": "investigation",
+      "annotation": "create_address",
+      "parameters": [
+        {
+          "title": "Server URL",
+          "description": "IP address or Hostname of the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "server_url"
+        },
+        {
+          "title": "Username",
+          "description": "Username to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "description": "Password to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        },
+        {
+          "title": "Address List",
+          "name": "addresses",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "output_schema": {
+        "msg": "",
+        "@code": "",
+        "@status": ""
+      }
+    },
+    {
+      "operation": "get_address_details",
+      "title": "Get Specific IP Address Object Details",
+      "description": "Retrieves a specific address details from Palo Alto Firewall based on the name of IP address that you have specified.",
+      "enabled": true,
+      "category": "investigation",
+      "annotation": "get_address_details",
+      "parameters": [
+        {
+          "title": "Username",
+          "description": "Username to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "description": "Password to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        },
+        {
+          "title": "IP Address Name",
+          "description": "Specify the name of the IP address object to retrieve its details from Palo Alto Firewall.",
+          "type": "text",
+          "name": "name",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "tooltip": "Specify the name of the IP address object to retrieve its details from Palo Alto Firewall."
+        }
+      ],
+      "output_schema": {
+        "@code": "",
+        "result": {
+          "entry": [
+            {
+              "tag": {
+                "member": []
+              },
+              "@name": "",
+              "@vsys": "",
+              "@location": "",
+              "ip-netmask": "",
+              "description": ""
+            }
+          ],
+          "@count": "",
+          "@total-count": ""
+        },
+        "@status": ""
+      }
+    },
+    {
+      "operation": "create_service",
+      "title": "Create Service Object",
+      "description": "Creates a service object in Palo Alto Firewall based on the name of the service, service type, or other input parameters that you have specified",
+      "enabled": true,
+      "category": "investigation",
+      "annotation": "create_service",
+      "parameters": [
+        {
+          "title": "Server URL",
+          "description": "IP address or Hostname of the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "server_url"
+        },
+        {
+          "title": "Username",
+          "description": "Username to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "description": "Password to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        },
+        {
+          "title": "Protocol List",
+          "name": "protocol_list",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Port List",
+          "name": "port_list",
+          "type": "json",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "output_schema": {
+        "msg": "",
+        "@code": "",
+        "@status": ""
+      }
+    },
+    {
+      "operation": "create_security_rule",
+      "title": "Create Security Policy Rule",
+      "description": "Creates a security policy rule in Palo Alto Firewall based on the input parameters that you have specified.",
+      "enabled": true,
+      "category": "investigation",
+      "annotation": "create_security_rule",
+      "parameters": [
+        {
+          "title": "Server URL",
+          "description": "IP address or Hostname of the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "server_url"
+        },
+        {
+          "title": "Username",
+          "description": "Username to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "description": "Password to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        },
+        {
+          "title": "Security Policy Rule Name",
+          "description": "Specify the name of the security policy rule to create in Palo Alto Firewall.",
+          "type": "text",
+          "name": "name",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "tooltip": "A valid security policy rule name must start with an alphanumeric character and can contain zero or more alphanumeric characters, underscore \"_\", hyphen \"-\", dot \".\" or spaces."
+        },
+        {
+          "title": "Source Security Zone",
+          "description": "Specify the source security zone of the security policy rule being created in Palo Alto Firewall. Once specified, the Palo Alto firewall implements the rule on all traffic originating from the specified security zone. A zone is a grouping of interfaces (physical or virtual) that represents a segment of your network that is connected to, and controlled by, the firewall.",
+          "type": "json",
+          "name": "from",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "any",
+          "tooltip": "Specify the source security zone of the security policy rule being created in Palo Alto Firewall. Once specified, the Palo Alto firewall implements the rule on all traffic originating from the specified security zone. A zone is a grouping of interfaces (physical or virtual) that represents a segment of your network that is connected to, and controlled by, the firewall."
+        },
+        {
+          "title": "Destination Security Zone",
+          "description": "Specify the destination security zone of the security policy rule being created in Palo Alto Firewall. Once specified, the Palo Alto firewall implements the rule on all traffic destined to the specified security zone. A zone is a grouping of interfaces (physical or virtual) that represents a segment of your network that is connected to, and controlled by, the firewall.",
+          "type": "json",
+          "name": "to",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "any",
+          "tooltip": "Specify the destination security zone of the security policy rule being created in Palo Alto Firewall. Once specified, the Palo Alto firewall implements the rule on all traffic destined to the specified security zone. A zone is a grouping of interfaces (physical or virtual) that represents a segment of your network that is connected to, and controlled by, the firewall."
+        },
+        {
+          "title": "Source IP Address",
+          "description": "Specify the source IP address of the security policy rule being created in Palo Alto Firewall. Once specified, the Palo Alto firewall implements the rule on all traffic originating from the specified IP address.",
+          "type": "json",
+          "name": "source",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "any",
+          "tooltip": "Specify the source IP address of the security policy rule being created in Palo Alto Firewall. Once specified, the Palo Alto firewall implements the rule on all traffic originating from the specified IP address."
+        },
+        {
+          "title": "Destination IP Address",
+          "description": "Specify the destination IP address of the security policy rule being created in Palo Alto Firewall. Once specified, the Palo Alto firewall implements the rule on all traffic destined to the specified IP address.",
+          "type": "json",
+          "name": "destination",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "any",
+          "tooltip": "Specify the destination IP address of the security policy rule being created in Palo Alto Firewall. Once specified, the Palo Alto firewall implements the rule on all traffic destined to the specified IP address."
+        },
+        {
+          "title": "Service",
+          "description": "Specify the service of the security policy rule being created in Palo Alto Firewall. Default value is application-default to ensure that any application that the rule allows are allowed only on their standard ports.",
+          "type": "json",
+          "name": "service",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "application-default",
+          "tooltip": "Specify the service of the security policy rule being created in Palo Alto Firewall. Default value is application-default to ensure that any application that the rule allows are allowed only on their standard ports."
+        },
+        {
+          "title": "Application",
+          "description": "Specify the application being allowed or blocked in the security policy rule being created in Palo Alto Firewall. Adding the application, safely enables it on the created security policy rule.",
+          "type": "text",
+          "name": "application",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "any",
+          "tooltip": "Specify the application being allowed or blocked in the security policy rule being created in Palo Alto Firewall. Adding the application, safely enables it on the created security policy rule."
+        },
+        {
+          "title": "Action",
+          "description": "Select the action option of the security policy rule being created in Palo Alto Firewall. You can choose from the following options: Deny, Allow, Drop, Reset Client, Reset Server, or Reset Both. By default it is set to \"Allow\"",
+          "type": "select",
+          "name": "action",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "options": [
+            "Deny",
+            "Allow",
+            "Drop",
+            "Reset Client",
+            "Reset Server",
+            "Reset Both"
+          ],
+          "value": "Allow",
+          "tooltip": "Select the action option of the security policy rule being created in Palo Alto Firewall. You can choose from the following options: Deny, Allow, Drop, Reset Client, Reset Server, or Reset Both. By default it is set to \"Allow\""
+        },
+        {
+          "title": "Category",
+          "description": "(Optional) Specify the URL Category of the security policy rule being created in Palo Alto Firewall. If you select a URL category, only web traffic will match the rule and only if the traffic is destined for that specified category.",
+          "type": "text",
+          "name": "category",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "tooltip": "(Optional) Specify the URL Category of the security policy rule being created in Palo Alto Firewall. If you select a URL category, only web traffic will match the rule and only if the traffic is destined for that specified category."
+        },
+        {
+          "title": "Source User",
+          "description": "(Optional) Specify the users and groups to match in the security policy rule being created in Palo Alto Firewall. Mapped users or groups at the source of the traffic can be allowed or blocked.",
+          "type": "text",
+          "name": "source-user",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "tooltip": "(Optional) Specify the users and groups to match in the security policy rule being created in Palo Alto Firewall. Mapped users or groups at the source of the traffic can be allowed or blocked."
+        },
+        {
+          "title": "Rule Type",
+          "description": "(Optional) Select the rule type of the security policy rule being created in Palo Alto Firewall. You can choose from the following options: Universal, Intrazone, or Interzone. By default it set to \"Universal\"",
+          "type": "select",
+          "name": "rule-type",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "options": [
+            "Universal",
+            "Intrazone",
+            "Interzone"
+          ],
+          "tooltip": "(Optional) Select the rule type of the security policy rule being created in Palo Alto Firewall. You can choose from the following options: Universal, Intrazone, or Interzone. By default it set to \"Universal\"",
+          "value": "Universal"
+        },
+        {
+          "title": "Disabled",
+          "description": "(Optional) Select whether to disable the security policy rule being created in Palo Alto Firewall. You can choose from the following options: Yes or No. By default it set to \"No\"",
+          "type": "select",
+          "name": "disable",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "options": [
+            "Yes",
+            "No"
+          ],
+          "value": "No",
+          "tooltip": "(Optional) Select whether to disable the security policy rule being created in Palo Alto Firewall. You can choose from the following options: Yes or No. By default it set to \"No\""
+        },
+        {
+          "title": "Custom Properties",
+          "description": "(Optional) Specify the additional properties, in the JSON format, that you want to specify for the security policy rule being created in Palo Alto Firewall. The additional properties signify additional fields associated with the security policy rule.",
+          "tooltip": "(Optional) Specify the additional properties, in the JSON format, that you want to specify for the security policy rule being created in Palo Alto Firewall. The additional properties signify additional fields associated with the security policy rule.",
+          "type": "json",
+          "name": "attributes",
+          "required": false,
+          "visible": true,
+          "editable": true
+        }
+      ],
+      "output_schema": {
+        "msg": "",
+        "@code": "",
+        "@status": ""
+      }
+    }
+  ],
+  "category": "Firewall and Network Protection",
+  "active": true,
+  "cs_compatible": true,
+  "system": false,
+  "playbook_collections": [],
+  "icon_small": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAIAAAD8GO2jAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDQ1MSwgMjAxNy8wNS8wNi0wMTowODoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1MDNhYTZiMy0zYzEzLTQ5YzEtODNiZi00MThjZWIxM2VhNTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QUI4QjBCQ0M5RUUwMTFFODkwMTM4MDQ5MEM0QkFCRTEiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QUI4QjBCQ0I5RUUwMTFFODkwMTM4MDQ5MEM0QkFCRTEiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTggKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3ODk1YjdhNi0xMjEwLTQ5YzItOWFkYS0xOTU1NjZmYzY4YTQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NTAzYWE2YjMtM2MxMy00OWMxLTgzYmYtNDE4Y2ViMTNlYTUyIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+2EIFtwAABCFJREFUeNrsVltvG0UUnt3Zi9eXXd/WkdOQhjRNaCLUBClxGqIiIUWAqrwVqMQLzzzyC/gL8AeQ+sYDvCBEVfGAgEpJLGMiKzKVoXadqHVsr514vffdWc5uLCIhhUvavqCMVtbs+sz3nct3ZobyfR+9yEGjFzwuCC4Inn0wzwvIIaSuOruKvtszPn41l+aZ50DwRLP3+maxq+909C3FOBw6yPKQRzYuJd7IJ85D0Lfch0fWz4q+3dF3usavAwuZLvJ8RFGIDh+WRr5f7Br/lsBwySPV/gUQ2/oO/PYtpDvIJQhRCIeI1Ag0mHgEYRomQH9mDYjvPx4GgUPUQeA983hoQ4IDCICDfYuhEYdPTJHjbcykWoaTF9j7T4ab09LXTzU0tLe7huf7GCjBEdjsjm1vVzFKXW2rYxQVox4E7gXr6dBNsKNCch9dk4WqYgae+igq8TMcvSjHMOUXZKGsWGDI0dRn5Tbicf39V6bi/CiC+weD9775fYQCCQXpshhFGWST4AskBP6KMBDErUsJ1SW3J8WhTX5TrTvTyZbulHpmWTHBNIFpmg69sdyKYp4SLKQE4ERgEsF3JsUbueiNsfjLCW7zu/pWS3v3alrRPQajdybibZPcGk90TI/D1NsTcd3xAPByjK0P7UPdBewS5JOlkEmgDJuXpRHBFZETE9ygo384n/n85iR8aRtO7dhYyUYt158VeS1KbJc4vj8RZcC/NI+hIl811CSPt6FItkdjalbAMo/fyvJVlWqY5k9t/bTIPKbX0sK9tl5TLXi1PPJppb2v2+BRWbU+4EQAHfjASn5oqY9159A4kSZaG4vMxxlMMcC7r3kPjixieMj2AKSmmqZHIpgeqaggR+89VB70rW+bRyDKhmZ/dE2+KvF3G1Uwuvuo31SMILl+oE8UygMK2tS9A9UBLYevOBJnb07G13LCshxbSPEcTZ/KFGQQ6E9zupabYPGb+fj1jPBjawieflLpdAd2IKdQSIiQsA9g7h9Q1EouBjWD5dfT0WmRA2/+onvq5Ew+0OyXvqhCW25cSc6J/A50/0lPobB9QriAI8LMS5FCVliRhdcy0VmJT/L/0KojAhD9zJfVescIgFw/dBUFbcnj8QRXyASIy9nYfIrPR7nz7KagtqWUUN9XUYzlRPb1dASUujYuLYjsZIx5lj2d+vPa8v1TtdY3l8fiMyIXh0Zzzf16IyYlMctLqdRZ6zVN03WdYZjUGTbUWfeiYrFYqVTW19dd1+31erIsN5vNTCaTzWY7nU4ul1NVtdVqpdPpdrstSVKhUPhvBw4hBLBEUdzb23McRxCEUqm0urpaq9UURQECoCyXy4uLixjj85xoc3NzS0tLHMfBethikskkz/NTU1OQE/hCwgEB5fN5yMHfcFAXV8f/P8EfAgwAljwK58UGr78AAAAASUVORK5CYII=",
+  "icon_large": "data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAFAAAABQCAIAAAABc2X6AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA3hpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuNi1jMTQwIDc5LjE2MDQ1MSwgMjAxNy8wNS8wNi0wMTowODoyMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1MDNhYTZiMy0zYzEzLTQ5YzEtODNiZi00MThjZWIxM2VhNTIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6QUI4QjBCQzg5RUUwMTFFODkwMTM4MDQ5MEM0QkFCRTEiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6QUI4QjBCQzc5RUUwMTFFODkwMTM4MDQ5MEM0QkFCRTEiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENDIDIwMTggKE1hY2ludG9zaCkiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3ODk1YjdhNi0xMjEwLTQ5YzItOWFkYS0xOTU1NjZmYzY4YTQiIHN0UmVmOmRvY3VtZW50SUQ9InhtcC5kaWQ6NTAzYWE2YjMtM2MxMy00OWMxLTgzYmYtNDE4Y2ViMTNlYTUy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9tlnS0pK3nrrrddffx1WZNmyZU8++eTcuXO3bdvG83xNTc3q1asBoSiKr7zySmFhISxQKkFSsG9w3KgHgNlAkN82xvvvv4/29wQhFYp4PN7R0bFixYrKysp169YBLV999dXHHnvszTffhDgnEommpibg/9mzZ3fv3g3nf/HFFxMmTPB4PMuXL3/ppZfgHCDztydaI371iegKNAb6WSwWw4rjqVBAMKdNmwYhgs+dnZ2yLH/wwQfwWzgZeDF//vxdu3bBKrz88st79uzZu3cvhLGiouLkyZMbNmzIz8+H9fpWVXqEA/INSLtgwYKBdyyqCthSH4CWqYNVVVX19fWPP/44JCccB5xz5sxZv349XPv8889HIpEVxoDl2L59u9PpBNoD51OXwyNSyprK/O8YMER14sSJEDGi/9VOVlZWeTn6RklOTk7qAwzIUuDwG2+8AWF84oknUhfee++9HMcBSEhgCPKsWbPg+OLFi9euXQtoQcAgF9BeSnFx6uYFBQXffVm6RWOwdN/ccZt+ffgWocUyXxDPAM4AzgDOAM4AzgDOAM4AzgDOAL7e8X8CDABx4E/85hxhEAAAAABJRU5ErkJggg==",
+  "help_online": "",
+  "vendor_version": null
+}

@@ -3,6 +3,7 @@ import os.path
 import re
 from datetime import datetime
 from typing import Optional
+import uuid
 
 import requests
 from connectors.core.connector import get_logger, ConnectorError
@@ -32,7 +33,6 @@ class AlertClient:
         self._verify = config.get("verify_ssl", False)
         self.username = config.get("username", "")
         self.password = config.get("password", "")
-        self.alert_id = config["alert_id"]
         self.host_name = config.get("host_name", "")
         self.host_ip = config.get("host_ip", "")
         self.host_id = config.get("host_id", "")
@@ -81,7 +81,7 @@ class AlertClient:
                 "bs_groups": [],  # 对象，group_name 告警设备业务分组 group_id 告警业务分组id
             },
             "host_id": self.host_id,  # 字符，告警主机id
-            "id": self.alert_id,  # 必填，字符，第三方告警id
+            "id": str(uuid.uuid4()),  # 必填，字符，第三方告警id
             "last_change": now.strftime(
                 "%m-%d %H:%M"
             ),  # 必填，字符，告警发生时间： mm-dd HH:MM

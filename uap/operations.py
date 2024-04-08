@@ -3,12 +3,15 @@ from integrations.crudhub import make_request
 from .client.alert_client import AlertClient
 from connectors.core.connector import get_logger, ConnectorError
 
+
 def _check_health(config):
     try:
         ac = AlertClient(config)
-        ac.alert_data("信息", "心跳检测")
+        # ac.alert_data("信息", "心跳检测")
+        res = ac.connect("GET", "/api/alert/exalert/sdata/")
     except Exception as e:
         raise ConnectorError("{}".format(e))
+
 
 def send_alert(config, params):
     ac = AlertClient(config)
@@ -25,6 +28,8 @@ def get_users(config, params):
         )
 
     return user_list
+
+
 #
 #
 # def get_teams(config, params):

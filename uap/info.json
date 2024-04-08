@@ -22,15 +22,6 @@
         "description": "Base URL"
       },
       {
-        "name": "alert_id",
-        "title": "Alert ID",
-        "type": "text",
-        "editable": true,
-        "visible": true,
-        "required": true,
-        "description": "Alert ID"
-      },
-      {
         "name": "host_name",
         "title": "Host Name",
         "type": "text",

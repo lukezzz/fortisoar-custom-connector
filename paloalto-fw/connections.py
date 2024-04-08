@@ -1,9 +1,3 @@
-""" Copyright start
-  Copyright (C) 2008 - 2023 Fortinet Inc.
-  All rights reserved.
-  FORTINET CONFIDENTIAL & FORTINET PROPRIETARY SOURCE CODE
-  Copyright end """
-
 import json
 import requests
 import xmltodict
@@ -50,23 +44,17 @@ def check_response(obj):
 
 
 class PaloAltoCustom(object):
-    def __init__(self, config):
+    def __init__(self, config, params):
         self.log = logger
-        self._server_url = config.get("server_url").strip("/")
+        self._server_url = params.get("server_url")
         if not self._server_url.startswith(
             "https://"
         ) and not self._server_url.startswith("http://"):
             self._server_url = "https://{0}".format(self._server_url)
-        self._username = config.get("username")
-        self._password = config.get("password")
+        self._username = params.get("username")
+        self._password = params.get("password")
         # self._verify_ssl = config.get("verify_ssl") or False
         self._verify_ssl = False
-        self._ip_policy_name = config.get("ip_policy_name")
-        self._address_group = config.get("address_group")
-        self._url_policy_name = config.get("url_policy_name")
-        self._url_group = config.get("url_group")
-        self._app_policy_name = config.get("app_policy_name")
-        self._app_group = config.get("app_group")
         self._api_type = config.get("api_type")
         self._virtual_sys = (
             config.get("virtual_sys") if config.get("virtual_sys") else VSYS_NAME
