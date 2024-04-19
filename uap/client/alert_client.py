@@ -101,7 +101,7 @@ class AlertClient:
             "applications": [],  # 数组，应用集名称
         }
         try:
-            res = self.connect("POST", "/api/alert/exalert/sdata/", data=data)
+            res = self.connect("POST", "", data=data)
             return res
         except Exception as e:
             raise ConnectorError("{}".format(e))
@@ -116,7 +116,6 @@ class AlertClient:
         # Only convert the data to JSON if there is data.
         if data is not None and method != "GET":
             data = json.dumps(data)
-        url = os.path.join(self.base_url, resource)
         # logger.debug("url: {}".format(url))
         url = "{0}{1}".format(self.base_url, resource)
         try:

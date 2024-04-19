@@ -56,18 +56,25 @@ class HillStoneFWClient:
         }
         res = self._session.post(url, json=login_data, verify=False)
         logger.debug("Login response: %s", res.text)
-        try:
-            res_json = res.json()
-            if res_json["success"]:
-                res_data = res_json["result"][0]
-                if not self.vsys_id:
-                    self.vsys_id = res_data["vsysId"]
-                cookie = f"token={res_data['token']};username={res_data['username']};vsysId={self.vsys_id};role={res_data['role']};fromrootvsys={res_data['fromrootvsys']}"
-                self._session.headers.update({"Cookie": cookie})
-                self._logged = True
-                logger.debug("host is %s", self.host)
-        except Exception:
-            raise ConnectorError("Not logged on a session, please login")
+        res_json = res.json()
+        if res_json["success"]:
+            res_data = (
+                res_json["result"][0]
+                if isinstance(res_json["result"], list)
+                else res_json["result"]
+            )
+            if res_data["passwordExpired"] == 1:
+                raise ConnectorError("password expired")
+            if not self.vsys_id:
+                self.vsys_id = res_data["vsysId"]
+            cookie = f"token={res_data['token']};username={res_data['username']};vsysId={self.vsys_id};role={res_data['role']};fromrootvsys={res_data['fromrootvsys']}"
+            self._session.headers.update({"Cookie": cookie})
+            self._logged = True
+            logger.debug("host is %s", self.host)
+        else:
+            raise ConnectorError(
+                "Not logged on a session, please login. Error: {0}".format(res_json)
+            )
 
     def logout(self):
         url = self.url_prefix + "/logout"

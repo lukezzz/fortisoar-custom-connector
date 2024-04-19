@@ -149,15 +149,19 @@ def create_service(config, params):
         protocol_list = params.get("protocol_list")
 
         service_name_list = []
-        service_list = []
-        for port, protocol in zip(port_list, protocol_list):
-            service_list.append(
-                {
-                    "port": port,
-                    "protocol": protocol,
-                    "name": f"{protocol.upper()}_{port}",
-                }
-            )
+        # for port, protocol in zip(port_list, protocol_list):
+        #     service_list.append(
+        #         {
+        #             "port": port,
+        #             "protocol": protocol,
+        #             "name": f"{protocol.upper()}_{port}",
+        #         }
+        #     )
+        service_list = [
+            {"port": port, "protocol": protocol, "name": f"{protocol.upper()}_{port}"}
+            for port in port_list
+            for protocol in protocol_list
+        ]
         for srv in service_list:
             # protocol only support tcp, udp
             protocol_type = (

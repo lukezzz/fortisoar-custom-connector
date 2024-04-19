@@ -47,23 +47,24 @@
         {
           "name": "password",
           "title": "password",
-          "type": "Password",
+          "type": "password",
           "editable": true,
           "visible": true,
           "required": true,
           "description": "password"
         },
         {
-          "name": "View Name",
+          "name": "view_name",
           "title": "view_name",
           "type": "text",
           "editable": true,
           "visible": true,
           "required": true,
-          "description": "view_name"
+          "description": "view_name",
+          "value": "default"
         },
         {
-          "name": "Domain Name",
+          "name": "domain_name",
           "title": "domain_name",
           "type": "text",
           "editable": true,
@@ -72,7 +73,7 @@
           "description": "domain_name"
         },
         {
-          "name": "Domain IP",
+          "name": "domain_ip",
           "title": "domain_ip",
           "type": "text",
           "editable": true,
@@ -105,14 +106,14 @@
         {
           "name": "password",
           "title": "password",
-          "type": "Password",
+          "type": "password",
           "editable": true,
           "visible": true,
           "required": true,
           "description": "password"
         },
         {
-          "name": "Domain Name",
+          "name": "domain_name",
           "title": "domain_name",
           "type": "text",
           "editable": true,

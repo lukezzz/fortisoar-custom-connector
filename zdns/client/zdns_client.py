@@ -27,27 +27,45 @@ class ZDNSClient:
         url = f"{self.base_url}/dns-search-resources"
         domain_dict = {}
         params = {
-            'current_user': username,
-            'search_key': search_name,
+            "current_user": username,
+            "search_key": search_name,
         }
         r = requests.get(url, data=params, auth=(username, password), verify=False)
         result = r.json()
-        for i in result['resources']:
-            if "in-addr.arpa" in str(i['name']):
+        for i in result["resources"]:
+            if "in-addr.arpa" in str(i["name"]):
                 pass
             else:
-                domain_dict[i['name']] = i['rdata']
+                domain_dict[i["name"]] = i["rdata"]
         return domain_dict
 
-    def add_rrs(self, username, password, view_name, zone_name, rrs_name, rrs_type, rrs_rdata, rrs_ttl="300",
-                ptr_stat="no"):
+    def add_rrs(
+        self,
+        username,
+        password,
+        view_name,
+        zone_name,
+        rrs_name,
+        rrs_type,
+        rrs_rdata,
+        rrs_ttl="300",
+        ptr_stat="no",
+    ):
         url = f"{self.base_url}/views/{view_name}/zones/{zone_name}/rrs"
-        params = {'name': rrs_name,
-                  'type': rrs_type,
-                  'rdata': rrs_rdata,
-                  'ttl': rrs_ttl,
-                  'link_ptr': ptr_stat,
-                  'current_user': username}
-        headers = {'Content-type': 'application/json'}
-        r = requests.post(url, data=json.dumps(params), headers=headers, auth=(username, password), verify=False)
-        return r.status_code
+        params = {
+            "name": rrs_name,
+            "type": rrs_type,
+            "rdata": rrs_rdata,
+            "ttl": rrs_ttl,
+            "link_ptr": ptr_stat,
+            "current_user": username,
+        }
+        headers = {"Content-type": "application/json"}
+        r = requests.post(
+            url,
+            data=json.dumps(params),
+            headers=headers,
+            auth=(username, password),
+            verify=False,
+        )
+        return r

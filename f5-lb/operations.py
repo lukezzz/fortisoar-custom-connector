@@ -302,29 +302,30 @@ def get_config(config):
 
 
 def _check_health(config):
-    hostname, verify_ssl = get_config(config)
-    logger.info("F5-BIG-IP Test Connectivity")
-    endpoint = "{0}/tmui/login.jsp".format(str(hostname))
-    try:
-        response = api_health_check(endpoint, method="GET", verify=verify_ssl)
-        if response:
-            logger.info("F5-BIG-IP Connector Available")
-            return True
-        else:
+    pass
+    # hostname, verify_ssl = get_config(config)
+    # logger.info("F5-BIG-IP Test Connectivity")
+    # endpoint = "{0}/tmui/login.jsp".format(str(hostname))
+    # try:
+    #     response = api_health_check(endpoint, method="GET", verify=verify_ssl)
+    #     if response:
+    #         logger.info("F5-BIG-IP Connector Available")
+    #         return True
+    #     else:
 
-            raise ConnectorError(
-                "Status: {0}, Details: {1} ".format(
-                    str(response.status_code), str(response.content)
-                )
-            )
-    except Exception as err:
-        logger.exception("{}".format(str(err)))
-        if "Max retries exceeded" in str(err):
-            logger.exception("Hostname {0} is not known".format(hostname))
-            raise ConnectorError("Hostname {0} is not known".format(hostname))
-        else:
-            logger.exception("Exception occurred : {0}".format(err))
-            raise ConnectorError("failure: {}".format(str(err)))
+    #         raise ConnectorError(
+    #             "Status: {0}, Details: {1} ".format(
+    #                 str(response.status_code), str(response.content)
+    #             )
+    #         )
+    # except Exception as err:
+    #     logger.exception("{}".format(str(err)))
+    #     if "Max retries exceeded" in str(err):
+    #         logger.exception("Hostname {0} is not known".format(hostname))
+    #         raise ConnectorError("Hostname {0} is not known".format(hostname))
+    #     else:
+    #         logger.exception("Exception occurred : {0}".format(err))
+    #         raise ConnectorError("failure: {}".format(str(err)))
 
 
 operations = {

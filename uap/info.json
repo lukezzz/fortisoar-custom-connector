@@ -1,7 +1,7 @@
 {
   "name": "uap",
   "label": "UAP",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "uap",
   "publisher": "Hftech",
   "cs_approved": false,
@@ -96,7 +96,7 @@
       {
         "name": "send_to",
         "title": "Send To",
-        "type": "Json",
+        "type": "object",
         "editable": true,
         "visible": true,
         "required": false,

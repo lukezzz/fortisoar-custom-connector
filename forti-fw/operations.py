@@ -124,11 +124,16 @@ def create_service(config, params):
     port_list = params.get("port_list")
     protocol_list = params.get("protocol_list")
 
-    service_name_list = []
-    for port, protocol in zip(port_list, protocol_list):
-        service_name_list.append(
-            {"port": port, "protocol": protocol, "name": f"{protocol.upper()}_{port}"}
-        )
+    # service_name_list = []
+    # for port, protocol in zip(port_list, protocol_list):
+    #     service_name_list.append(
+    #         {"port": port, "protocol": protocol, "name": f"{protocol.upper()}_{port}"}
+    #     )
+    service_name_list = [
+        {"port": port, "protocol": protocol, "name": f"{protocol.upper()}_{port}"}
+        for port in port_list
+        for protocol in protocol_list
+    ]
 
     try:
         client = FortiGateFWClient(config, params["username"], params["password"])
