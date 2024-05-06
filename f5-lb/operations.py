@@ -16,10 +16,11 @@ class Endpoint:
 
 
 def create_pool(config, params):
+    host = params.get("host")
     username = params.get("username")
     password = params.get("password")
 
-    client = F5Client(config, username, password)
+    client = F5Client(config, host, username, password)
 
     partition = params.get("partition")
     monitor = params.get("monitor")
@@ -117,13 +118,33 @@ def find_free_vs_add(client, partition, vs_dest_subnet):
     raise ConnectorError(f"No free vs address left in {vs_dest_subnet} range")
 
 
-def create_vs(config, params):
+def get_new_vs_ip(config, params):
     username = params.get("username")
     password = params.get("password")
+    host = params.get("host")
 
     vs_dest_subnet = config.get("vs_dest_subnet")
 
-    client = F5Client(config, username, password)
+    client = F5Client(config, host, username, password)
+
+    partition = params.get("partition")
+
+    new_vs_ip = find_free_vs_add(client, partition, vs_dest_subnet)
+
+    if new_vs_ip:
+        return new_vs_ip
+    else:
+        raise ConnectorError(f"Failed to get vs ip")
+
+
+def create_vs(config, params):
+    username = params.get("username")
+    password = params.get("password")
+    host = params.get("host")
+
+    vs_dest_subnet = config.get("vs_dest_subnet")
+
+    client = F5Client(config, host, username, password)
 
     partition = params.get("partition")
 
@@ -138,7 +159,9 @@ def create_vs(config, params):
 
     vs_port = params.get("vs_port")
 
-    new_vs_ip = find_free_vs_add(client, partition, vs_dest_subnet)
+    new_vs_ip = params.get("vs_ip")
+    if not new_vs_ip:
+        new_vs_ip = find_free_vs_add(client, partition, vs_dest_subnet)
 
     destination = f"{new_vs_ip}:{vs_port}"
 
@@ -179,8 +202,9 @@ def create_vs(config, params):
 def create_gtm_server(config, params):
     username = params.get("username")
     password = params.get("password")
+    host = None
 
-    client = F5Client(config, username, password)
+    client = F5Client(config, host, username, password)
 
     service_name = params.get("service_name")
 
@@ -226,8 +250,9 @@ def create_gtm_server(config, params):
 def create_gtm_pool(config, params):
     username = params.get("username")
     password = params.get("password")
+    host = None
 
-    client = F5Client(config, username, password)
+    client = F5Client(config, host, username, password)
 
     service_name = params.get("service_name")
 
@@ -259,8 +284,9 @@ def create_gtm_pool(config, params):
 def create_gtm_wide_ip(config, params):
     username = params.get("username")
     password = params.get("password")
+    host = None
 
-    client = F5Client(config, username, password)
+    client = F5Client(config, host, username, password)
 
     service_name = params.get("service_name")
 
@@ -303,34 +329,12 @@ def get_config(config):
 
 def _check_health(config):
     pass
-    # hostname, verify_ssl = get_config(config)
-    # logger.info("F5-BIG-IP Test Connectivity")
-    # endpoint = "{0}/tmui/login.jsp".format(str(hostname))
-    # try:
-    #     response = api_health_check(endpoint, method="GET", verify=verify_ssl)
-    #     if response:
-    #         logger.info("F5-BIG-IP Connector Available")
-    #         return True
-    #     else:
-
-    #         raise ConnectorError(
-    #             "Status: {0}, Details: {1} ".format(
-    #                 str(response.status_code), str(response.content)
-    #             )
-    #         )
-    # except Exception as err:
-    #     logger.exception("{}".format(str(err)))
-    #     if "Max retries exceeded" in str(err):
-    #         logger.exception("Hostname {0} is not known".format(hostname))
-    #         raise ConnectorError("Hostname {0} is not known".format(hostname))
-    #     else:
-    #         logger.exception("Exception occurred : {0}".format(err))
-    #         raise ConnectorError("failure: {}".format(str(err)))
 
 
 operations = {
     "create_pool": create_pool,
     "create_vs": create_vs,
+    "get_new_vs_ip": get_new_vs_ip,
     "create_gtm_server": create_gtm_server,
     "create_gtm_pool": create_gtm_pool,
     "create_gtm_wide_ip": create_gtm_wide_ip,

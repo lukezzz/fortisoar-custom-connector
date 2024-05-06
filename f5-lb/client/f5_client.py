@@ -22,11 +22,11 @@ class TimeoutHTTPAdapter(HTTPAdapter):
 
 
 class F5Client:
-    def __init__(self, config, username, password):
+    def __init__(self, config, host, username, password):
 
         super().__init__()
 
-        self.base_url = config.get("server_url").strip()
+        self.base_url = host if host else config.get("server_url").strip()
         if not self.base_url.startswith(("https://", "http://")):
             self.base_url = "https://" + self.base_url
         self._verify = config.get("verify_ssl")

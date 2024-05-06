@@ -41,7 +41,7 @@ def add_domain(config, params):
             domain_ip,
         )
         logger.info(log_info)
-        raise ConnectorError("EXISTS")
+        raise ConnectorError(result.content)
 
 
 # def __find_zone(domain_name, zone_list):

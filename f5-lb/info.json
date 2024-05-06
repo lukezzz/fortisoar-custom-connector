@@ -53,6 +53,15 @@
       },
       "parameters": [
         {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
           "title": "Username",
           "name": "username",
           "type": "text",
@@ -128,6 +137,15 @@
         "status": ""
       },
       "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
         {
           "title": "Username",
           "name": "username",
@@ -226,6 +244,64 @@
           "editable": true,
           "visible": true,
           "value": ""
+        },
+        {
+          "title": "VS IP",
+          "name": "vs_ip",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "获取新的vs ip",
+      "operation": "get_new_vs_ip",
+      "description": "获取一个新的vs ip",
+      "category": "containment",
+      "annotation": "get_new_vs_ip",
+      "output_schema": {
+        "vs_ip": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Partition",
+          "name": "partition",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "Common"
         }
       ],
       "enabled": true

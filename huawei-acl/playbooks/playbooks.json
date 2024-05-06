@@ -1,0 +1,263 @@
+{
+  "type": "workflow_collections",
+  "data": [
+    {
+      "@type": "WorkflowCollection",
+      "name": "Sample - huawei-catalyst - 1.0.0",
+      "description": "Sample playbooks for \"huawei-catalyst\" connector. Ensure that you clone this collection before using the playbooks since the sample playbook collection gets deleted during connector upgrade and delete.",
+      "visible": true,
+      "image": "/api/3/images/5ab411a6097df1ac748b4567",
+      "workflows": [
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Configure VLAN",
+          "description": "Assign the VLAN of the port on which the host is connected",
+          "collection": "/api/3/workflow_collections/c46e6bf8-1aad-4847-a292-02217b2c921d",
+          "tag": "#Huawei OS",
+          "isActive": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/46654e83-0237-4a6d-ba37-26e459158b07",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "arguments": {
+                "route": "9230f8d0-f22e-4943-9c3f-2aa624cde3b2",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": []
+              },
+              "status": null,
+              "left": "291",
+              "top": "26",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "46654e83-0237-4a6d-ba37-26e459158b07"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Save Data",
+              "arguments": {
+                "result_data": "{{vars.steps.Configure_VLAN.data}}"
+              },
+              "status": null,
+              "left": "580",
+              "top": "360",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "uuid": "fcb9ed08-9a6f-4a87-851c-1d809a6c65ac"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Configure VLAN",
+              "arguments": {
+                "name": "Huawei OS",
+                "config": "a9088da9-d325-48c0-b60b-bebde8bc8f95",
+                "params": {
+                  "ping_ip": "",
+                  "vlan_id": 121,
+                  "ip_macaddress": "1.1.0.1",
+                  "override_trunk": true
+                },
+                "version": "1.0.0",
+                "connector": "huawei-catalyst",
+                "operation": "configure_vlan",
+                "operationTitle": "Configure VLAN",
+                "step_variables": []
+              },
+              "status": null,
+              "left": "520",
+              "top": "180",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "f72ce6b4-71c9-47a2-afc8-222764031a38"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "cf65341c-0ee3-4cde-87eb-53777ae51ed8",
+              "name": "Alerts -> Configure VLAN",
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/f72ce6b4-71c9-47a2-afc8-222764031a38",
+              "sourceStep": "/api/3/workflow_steps/46654e83-0237-4a6d-ba37-26e459158b07"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "cb718a7a-16f0-4d29-8ba5-1d25c05578d8",
+              "name": "Configure VLAN -> Save Data",
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/fcb9ed08-9a6f-4a87-851c-1d809a6c65ac",
+              "sourceStep": "/api/3/workflow_steps/f72ce6b4-71c9-47a2-afc8-222764031a38"
+            }
+          ],
+          "uuid": "160dc478-c38a-452b-9848-ca56383149c5"
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Configuration",
+          "description": "Get configuration information of Huawei OS switch",
+          "collection": "/api/3/workflow_collections/c46e6bf8-1aad-4847-a292-02217b2c921d",
+          "tag": "#Huawei OS",
+          "isActive": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/a62532fe-dba5-48e9-99f0-2a7384ebd846",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Save Data",
+              "arguments": {
+                "result_data": "{{vars.steps.Get_Configuration.data}}"
+              },
+              "status": null,
+              "left": "732",
+              "top": "293",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "uuid": "44b0649a-b2da-4f87-be6e-d78f1941459b"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "arguments": {
+                "route": "3b4e8135-de5e-4583-a8da-b6d01b66ce9f",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": []
+              },
+              "status": null,
+              "left": "280",
+              "top": "40",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "a62532fe-dba5-48e9-99f0-2a7384ebd846"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Configuration",
+              "arguments": {
+                "name": "Huawei OS",
+                "config": "a9088da9-d325-48c0-b60b-bebde8bc8f95",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "huawei-catalyst",
+                "operation": "get_config",
+                "operationTitle": "Get Configuration",
+                "step_variables": []
+              },
+              "status": null,
+              "left": "528",
+              "top": "182",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "e2a6ca3c-a92b-4b86-9b36-ebdd87ef928f"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "141f4c79-f386-4494-ade7-c32e6f121c3a",
+              "name": "Alerts -> Get Configuration",
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/e2a6ca3c-a92b-4b86-9b36-ebdd87ef928f",
+              "sourceStep": "/api/3/workflow_steps/a62532fe-dba5-48e9-99f0-2a7384ebd846"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "34248b37-4712-45ca-943d-c25500cffe0d",
+              "name": "Get Configuration -> Save Data",
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/44b0649a-b2da-4f87-be6e-d78f1941459b",
+              "sourceStep": "/api/3/workflow_steps/e2a6ca3c-a92b-4b86-9b36-ebdd87ef928f"
+            }
+          ],
+          "uuid": "86f22844-0efe-431e-9f63-a0af56d9e46c"
+        },
+        {
+          "@type": "Workflow",
+          "triggerLimit": null,
+          "name": "Get Version",
+          "description": "Get version information of Huawei OS switch",
+          "collection": "/api/3/workflow_collections/c46e6bf8-1aad-4847-a292-02217b2c921d",
+          "tag": "#Huawei OS",
+          "isActive": false,
+          "parameters": [],
+          "synchronous": false,
+          "triggerStep": "/api/3/workflow_steps/4f74930b-3ce7-459a-9d64-b0bd3b363a03",
+          "steps": [
+            {
+              "@type": "WorkflowStep",
+              "name": "Get Version",
+              "arguments": {
+                "name": "Huawei OS",
+                "config": "a9088da9-d325-48c0-b60b-bebde8bc8f95",
+                "params": [],
+                "version": "1.0.0",
+                "connector": "huawei-catalyst",
+                "operation": "get_version",
+                "operationTitle": "Get Version",
+                "step_variables": []
+              },
+              "status": null,
+              "left": "532",
+              "top": "181",
+              "stepType": "/api/3/workflow_step_types/0bfed618-0316-11e7-93ae-92361f002671",
+              "uuid": "a0d41e97-bdc4-42ba-ae68-e576c9d4ac62"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Alerts",
+              "arguments": {
+                "route": "eb2287c2-111b-462a-9ffa-9e586e16de3f",
+                "resources": [
+                  "alerts"
+                ],
+                "inputVariables": [],
+                "step_variables": []
+              },
+              "status": null,
+              "left": "291",
+              "top": "26",
+              "stepType": "/api/3/workflow_step_types/f414d039-bb0d-4e59-9c39-a8f1e880b18a",
+              "uuid": "4f74930b-3ce7-459a-9d64-b0bd3b363a03"
+            },
+            {
+              "@type": "WorkflowStep",
+              "name": "Save Data",
+              "arguments": {
+                "result_data": "{{vars.steps.Get_Version.data}}"
+              },
+              "status": null,
+              "left": "747",
+              "top": "286",
+              "stepType": "/api/3/workflow_step_types/04d0cf46-b6a8-42c4-8683-60a7eaa69e8f",
+              "uuid": "6ea5c938-18ba-4327-bade-15090c77a95e"
+            }
+          ],
+          "routes": [
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "faee21b4-aabf-4cf1-938d-a1641350767a",
+              "name": "Alerts -> Get Version",
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/a0d41e97-bdc4-42ba-ae68-e576c9d4ac62",
+              "sourceStep": "/api/3/workflow_steps/4f74930b-3ce7-459a-9d64-b0bd3b363a03"
+            },
+            {
+              "@type": "WorkflowRoute",
+              "uuid": "b178909d-6d0a-4f60-b76d-74e2e1b25415",
+              "name": "Get Version -> Save Data",
+              "isExecuted": false,
+              "targetStep": "/api/3/workflow_steps/6ea5c938-18ba-4327-bade-15090c77a95e",
+              "sourceStep": "/api/3/workflow_steps/a0d41e97-bdc4-42ba-ae68-e576c9d4ac62"
+            }
+          ],
+          "uuid": "117dfbce-9b11-4c19-b6ea-3a220c20110a"
+        }
+      ],
+      "uuid": "c46e6bf8-1aad-4847-a292-02217b2c921d"
+    }
+  ]
+}
