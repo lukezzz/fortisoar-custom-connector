@@ -165,7 +165,7 @@ class CiscoOSConnect:
             "Command": command,
             "Output": cmd_output,
             "Status": "Success",
-            OS: os_version,
+            "OS": os_version,
         }
         logger.info("get_version_info(): Executed command =  '{}'".format(command))
         logger.info("Command executed Successfully")
