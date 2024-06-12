@@ -24,10 +24,7 @@ def create_pool(config, params):
 
     partition = params.get("partition")
     monitor = params.get("monitor")
-    service_name = params.get("service_name")
-    vs_port = params.get("vs_port")
-
-    pool_name = f"pool_{service_name}_{vs_port}"
+    pool_name = params.get("pool_name")
 
     # if pool exists, return pool
     check_pool_url = f"{Endpoint.pool}/{pool_name}"
@@ -81,10 +78,7 @@ def create_pool(config, params):
                 }
             )
 
-    data = {
-        "name": pool_name,
-        "members": members_list,
-    }
+    data = {"name": pool_name, "members": members_list, "monitor": monitor}
 
     logger.debug(f"Creating pool with {data}")
 
@@ -171,11 +165,20 @@ def create_vs(config, params):
     persist = params.get("persist")
     sourceAddressTranslation = params.get("sourceAddressTranslation")
     pool = params.get("pool")
+    ssloffload = params.get("ssloffload")
+
+    if ipProtocol:
+        ipProtocol = ipProtocol.lower()
+        # ignore the sslProfiles if ipProtocol is not http
+        if ipProtocol in ["tcp", "udp"]:
+            httpProfiles = None
+            sslProfiles = None
 
     profiles = []
-    if httpProfiles:
+    if ipProtocol == "http" and httpProfiles:
+        ipProtocol = "tcp"
         profiles.append(httpProfiles)
-    if sslProfiles:
+    if bool(ssloffload) and sslProfiles:
         profiles.append(sslProfiles)
 
     post_data = {

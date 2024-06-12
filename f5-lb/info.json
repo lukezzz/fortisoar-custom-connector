@@ -98,8 +98,8 @@
           "value": "/Common/tcp"
         },
         {
-          "title": "Service Name",
-          "name": "service_name",
+          "title": "Pool Name",
+          "name": "pool_name",
           "type": "text",
           "required": true,
           "visible": true,
@@ -199,6 +199,15 @@
           "visible": true,
           "editable": true,
           "value": ""
+        },
+        {
+          "title": "SSL Offload",
+          "name": "ssloffload",
+          "type": "checkbox",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": false
         },
         {
           "title": "Http Profiles",
