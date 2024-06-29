@@ -24,6 +24,7 @@ class Endpoint:
     address = "addrbook_address"
     service = "servicebook_service"
     policy = "policy_rule"
+    zone = "zone"
 
 
 #
@@ -68,13 +69,15 @@ def create_address(config, params):
                 obj = ip_network(addr, False)
                 net = obj.network_address
                 if str(net) == "0.0.0.0":
-                    addr_name_list.append("All")
+                    addr_name_list.append("Any")
                     continue
                 mask = obj.netmask
                 if str(mask) == "255.255.255.255":
                     name = f"Host_{str(net)}"
+                    ip_addr = addr
                 else:
-                    name = f"Network_{str(net)}"
+                    name = f"Network_{str(net)}_{obj.prefixlen}"
+                    ip_addr = str(net)
 
             except ValueError:
                 logger.error("Invalid IP network", addr)
@@ -101,7 +104,7 @@ def create_address(config, params):
                         "entry": [],
                         "ip": [
                             {
-                                "ip_addr": addr2dec(addr),
+                                "ip_addr": ip_addr,
                                 "netmask": int(mask),
                                 "flag": 0,
                             }
@@ -290,6 +293,44 @@ def get_config(config):
         raise ConnectorError("Configuration field is required")
 
 
+def get_zone_by_interface(config, params):
+    try:
+        config["url"] = params["host"]
+        vrouer = params.get("vrouter")
+        interface_name = params.get("interface_name")
+        client = HillStoneFWClient(config, params["username"], params["password"])
+        client.login()
+        res = client.request("GET", Endpoint.zone)
+        # sample data
+        # {
+        #     "name": "untrust",
+        #     "vr": "trust-vr",
+        #     "shared": "0",
+        #     "ztype": "0",
+        #     "ident": "0",
+        #     "wan_type": "1",
+        #     "idp_direction": "0",
+        #     "ad_profile": "1",
+        #     "interface_list": [
+        #         "aggregate4"
+        #     ]
+        # }
+        # filter the vr and interface_list and return the zone name
+        for zone in res.json()["result"]:
+            if vrouer and zone["vr"] != vrouer:
+                continue
+            if (
+                interface_name
+                and "interface_list" in zone
+                and interface_name in zone["interface_list"]
+            ):
+                return zone["name"]
+
+    except Exception as err:
+        logger.exception("Error: {0}".format(err))
+        raise ConnectorError("Error: {0}".format(err))
+
+
 def get_ha_status(config, params):
     try:
         config["url"] = params["host"]
@@ -332,4 +373,5 @@ operations = {
     "create_service": create_service,
     "create_policy": create_policy,
     "get_ha_status": get_ha_status,
+    "get_zone_by_interface": get_zone_by_interface,
 }

@@ -133,6 +133,18 @@ class PaloAltoCustom(object):
         except Exception as err:
             raise ConnectorError(str(err))
 
+    def make_xml_call(self, data):
+        try:
+            response = requests.post(
+                self._server_url + "/api/", params=data, verify=self._verify_ssl
+            )
+            if response.ok:
+                return response.text
+            else:
+                raise ConnectorError(response.text)
+        except Exception as err:
+            raise ConnectorError(str(err))
+
     def setupApiKey(self, username: str, password: str):
         try:
             logger.debug("Fetching the api key.")

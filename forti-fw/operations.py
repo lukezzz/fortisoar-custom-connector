@@ -20,17 +20,23 @@ def route_lookup(config, params):
 
     query_ip = params.get("query_ip")
     # check if the query_ip is a valid IP address
-    try:
-        ip_address(query_ip)
-    except ValueError:
-        raise ConnectorError("Invalid IP address")
+    if not query_ip:
+        raise ConnectorError("Query IP address is required")
+    if query_ip == "any":
+        test_ip = "0.0.0.0"
+    else:
+        try:
+            test_ip = ip_network(query_ip, strict=False)
+            test_ip = str(test_ip.network_address)
+        except ValueError:
+            raise ConnectorError(f"Invalid IP address: {query_ip}")
 
     path = f"{Endpoint.monitor_router_lookup}"
 
     try:
         client = FortiGateFWClient(config, params["username"], params["password"])
         client.login(host=host, vdom=vdom)
-        parameters = {"destination": query_ip}
+        parameters = {"destination": test_ip}
         response = client.monitor(path, parameters=parameters)
         client.logout()
         return response
@@ -81,17 +87,20 @@ def create_address(config, params):
         for addr in post_addresses:
 
             # if addr is ip network, set name is Network_{addr}
+            if addr == "any":
+                addr_name_list.append("all")
+                continue
             try:
                 obj = ip_network(addr, False)
                 net = obj.network_address
                 if str(net) == "0.0.0.0":
-                    addr_name_list.append("All")
+                    addr_name_list.append("all")
                     continue
                 mask = obj.netmask
                 if str(mask) == "255.255.255.255":
                     name = f"Host_{str(net)}"
                 else:
-                    name = f"Network_{str(net)}"
+                    name = f"Network_{str(net)}_{str(obj.prefixlen)}"
 
             except ValueError:
                 logger.error("Invalid IP network", addr)
@@ -104,7 +113,7 @@ def create_address(config, params):
                 logger.info("Creating address: %s", name)
                 data = {
                     "name": f"{name}",
-                    "subnet": f"{addr} {str(mask)}",
+                    "subnet": f"{str(net)} {str(mask)}",
                     "type": "ipmask",
                     "comment": "fortisoar",
                 }

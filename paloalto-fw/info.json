@@ -435,6 +435,62 @@
         "@code": "",
         "@status": ""
       }
+    },
+    {
+      "operation": "get_zone",
+      "title": "Get Zone Name",
+      "description": "Retrieves the zone name from Palo Alto Firewall based on the zone type that you have specified.",
+      "enabled": true,
+      "category": "investigation",
+      "annotation": "get_zone",
+      "parameters": [
+        {
+          "title": "Server URL",
+          "description": "IP address or Hostname of the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "server_url"
+        },
+        {
+          "title": "Username",
+          "description": "Username to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "description": "Password to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        },
+        {
+          "title": "Virtual Router",
+          "description": "Specify the virtual router name to retrieve the zone name from Palo Alto Firewall.",
+          "type": "text",
+          "name": "virtualrouter",
+          "required": true,
+          "visible": true,
+          "editable": true
+        },
+        {
+          "title": "Test IP",
+          "description": "Specify the test IP address to retrieve the zone name from Palo Alto Firewall.",
+          "type": "text",
+          "name": "test_ip",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "any"
+        }
+      ]
     }
   ],
   "category": "Firewall and Network Protection",

@@ -2,6 +2,8 @@ from .connections import *
 from .constants import ADDRESS_TYPE, ADDRESS_GROUP, POLICY_ACTION
 from connectors.core.connector import ConnectorError, get_logger
 from ipaddress import ip_address, ip_network
+from xml.etree import ElementTree
+
 
 logger = get_logger("paloalto-firewall")
 
@@ -31,6 +33,61 @@ def prepare_response(res):
     except Exception as err:
         logger.error("Failed to prepare response, error {0}".format(err))
         return res
+
+
+def get_zone(config, params):
+    """
+    Perform a FIB Lookup for a given IP in a given Virtual Router and find
+    the outgoing interface, then find the zone of the outgoing interface.
+    """
+
+    virtualrouter = (
+        params.get("virtualrouter") if params.get("virtualrouter") else "default"
+    )
+    try:
+        ip = ip_network(params.get("test_ip"), strict=False)
+        test_ip = str(ip.network_address)
+    except ValueError:
+        raise ConnectorError("Invalid IP address")
+
+    try:
+        pa = PaloAltoCustom(config, params)
+        pa.setupApiKey(params["username"], params["password"])
+        # test ip and find the outgoing interface
+        payload = {
+            "type": "op",
+            "cmd": "<test><routing><fib-lookup>"
+            "<virtual-router>{}</virtual-router>"
+            "<ip>{}</ip>"
+            "</fib-lookup></routing></test>".format(virtualrouter, test_ip),
+            "key": pa._key,
+        }
+        res_text = pa.make_xml_call(data=payload)
+        tree = ElementTree.fromstring(res_text)
+        if tree.find("result/interface") is None:
+            raise ConnectorError("No outgoing interface found")
+        outgoing_interface = tree.find("result/interface").text
+
+        # get zone of the outgoing interface
+        payload = {
+            "type": "op",
+            "cmd": "<show><interface>{}</interface></show>".format(
+                outgoing_interface,
+            ),
+            "key": pa._key,
+        }
+        res_text = pa.make_xml_call(data=payload)
+        tree = ElementTree.fromstring(res_text)
+        zone = tree.find("result/ifnet/zone").text
+        if not zone:
+            raise ConnectorError("No zone found")
+
+        # find the target zone
+        return zone
+
+    except Exception as err:
+        logger.exception(str(err))
+        raise ConnectorError(str(err))
 
 
 def create_payload(params):
@@ -99,11 +156,13 @@ def create_address(config, params):
                 if str(net) == "0.0.0.0":
                     addr_name_list.append("any")
                     continue
-                mask = obj.prefixlen
+                mask = int(obj.prefixlen)
                 if mask == 32:
                     name = f"Host_{str(net)}"
+                    ip = f"{addr}/{mask}"
                 else:
-                    name = f"Network_{str(net)}"
+                    name = f"Network_{str(net)}_{mask}"
+                    ip = f"{str(net)}/{mask}"
 
             except ValueError:
                 logger.error("Invalid IP network", addr)
@@ -113,7 +172,7 @@ def create_address(config, params):
                 "entry": {
                     "@name": name,
                     "description": "fortisoar",
-                    "ip-netmask": f"{addr}/{mask}",
+                    "ip-netmask": ip,
                 }
             }
             payload = check_payload(payload)
@@ -255,4 +314,5 @@ operations = {
     "get_address_details": get_address_details,
     "create_service": create_service,
     "create_security_rule": create_security_rule,
+    "get_zone": get_zone,
 }

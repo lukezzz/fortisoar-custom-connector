@@ -15,6 +15,43 @@ class Endpoint:
     gtm_wide_ip = "/mgmt/tm/gtm/wideip"
 
 
+def check_ha(config, params):
+    host = params.get("host")
+    username = params.get("username")
+    password = params.get("password")
+
+    client = F5Client(config, host, username, password)
+
+    response = client.run("/mgmt/tm/cm/failover-status?$select=status", method="GET")
+    if response.status_code == 200:
+        status = response.json()["entries"][
+            "https://localhost/mgmt/tm/cm/failover-status/0"
+        ]["nestedStats"]["entries"]["status"]["description"]
+        if status == "ACTIVE":
+            return True
+        else:
+            return False
+    else:
+        raise ConnectorError(f"Failed to check HA: {response.text}")
+
+
+def sync_config(config, params):
+    host = params.get("host")
+    username = params.get("username")
+    password = params.get("password")
+    group_name = config.get("group_name")
+
+    client = F5Client(config, host, username, password)
+
+    payload = {"command": "run", "utilCmdArgs": f"config-sync to-group {group_name}"}
+
+    response = client.run("/mgmt/tm/cm", method="POST", data=payload)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        raise ConnectorError(f"Failed to sync config: {response.text}")
+
+
 def create_pool(config, params):
     host = params.get("host")
     username = params.get("username")
@@ -341,4 +378,6 @@ operations = {
     "create_gtm_server": create_gtm_server,
     "create_gtm_pool": create_gtm_pool,
     "create_gtm_wide_ip": create_gtm_wide_ip,
+    "check_ha": check_ha,
+    "sync_config": sync_config,
 }

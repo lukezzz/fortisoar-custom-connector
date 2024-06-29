@@ -254,7 +254,8 @@
       "output_schema": {
         "status": ""
       }
-    },    {
+    },
+    {
       "title": "检查当前HA状态",
       "operation": "get_ha_status",
       "description": "检查当前HA状态, 返回HA状态信息",
@@ -283,6 +284,64 @@
           "title": "Password",
           "name": "password",
           "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "status": ""
+      }
+    },
+    {
+      "title": "获取Zone名字",
+      "operation": "get_zone_by_interface",
+      "description": "获取Zone名字, 返回Zone名字",
+      "category": "containment",
+      "annotation": "get_zone_by_interface",
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "vrouter",
+          "name": "vrouter",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "trust-vr"
+        },
+        {
+          "title": "interface_name",
+          "name": "interface_name",
+          "type": "text",
           "required": true,
           "editable": true,
           "visible": true,

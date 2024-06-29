@@ -38,10 +38,99 @@
         "editable": true,
         "visible": true,
         "value": ""
+      },
+      {
+        "title": "HA Group Name",
+        "name": "group_name",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "value": ""
       }
     ]
   },
   "operations": [
+    {
+      "title": "Check HA Status",
+      "operation": "check_ha",
+      "description": "Check the HA status of the F5 device",
+      "category": "containment",
+      "annotation": "check_ha",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Sync Config",
+      "operation": "sync_config",
+      "description": "Sync the configuration of the F5 device to the standby device",
+      "category": "containment",
+      "annotation": "sync_config",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
     {
       "title": "新建Pool",
       "operation": "create_pool",

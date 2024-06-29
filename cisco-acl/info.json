@@ -163,6 +163,41 @@
           "name": "password"
         }
       ]
+    },
+    {
+      "operation": "show_config",
+      "title": "Show Configuration",
+      "description": "Show Configuration",
+      "category": "exec",
+      "annotation": "get_config",
+      "output_schema": {},
+      "enabled": true,
+      "parameters": [
+        {
+          "title": "Hostname",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "hostname"
+        },
+        {
+          "title": "Username",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        }
+      ]
     }
   ]
 }
