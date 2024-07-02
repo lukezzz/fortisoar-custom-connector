@@ -1,46 +1,41 @@
 {
   "name": "hillstone-fw",
+  "version": "1.0.0",
   "label": "山石网科防火墙",
   "description": "",
   "publisher": "Hftech",
-  "cs_approved": false,
-  "cs_compatible": true,
-  "version": "1.0.0",
-  "category": "firewall",
   "icon_small_name": "",
   "icon_large_name": "",
-  "help_online": "",
+  "id": 282,
   "configuration": {
     "fields": [
       {
         "title": "Host",
-        "name": "url",
         "type": "text",
+        "name": "url",
         "required": true,
-        "editable": true,
         "visible": true,
+        "editable": true,
         "tooltip": "ip or name (fqdn) can include a port like 10.40.40.40:8443"
       },
       {
         "title": "Verify SSL",
-        "name": "verify_ssl",
         "type": "checkbox",
+        "name": "verify_ssl",
         "required": false,
-        "editable": true,
         "visible": true,
-        "value": true,
-        "description": "Specifies whether the SSL certificate for the server is to be verified or not. By default, this option is set as True."
+        "editable": true,
+        "value": true
       },
       {
         "title": "Vsys Id",
-        "name": "vsys_id",
         "type": "text",
+        "name": "vsys_id",
+        "required": false,
         "visible": true,
         "editable": true,
-        "required": false,
-        "tooltip": "Provide VDOM CSV or List format, if VDOM mode enabled. These used for actions related to IP addresses",
-        "description": "Vsys ID",
-        "value": "root"
+        "value": "root",
+        "tooltip": "Provide VDOM CSV or List format, if VDOM mode enabled. These used for actions related to IP addresses"
       }
     ]
   },
@@ -54,45 +49,46 @@
       "parameters": [
         {
           "title": "Host",
-          "name": "host",
           "type": "text",
+          "name": "host",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Username",
-          "name": "username",
           "type": "text",
+          "name": "username",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Password",
-          "name": "password",
           "type": "password",
+          "name": "password",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Address List",
-          "name": "addresses",
           "type": "json",
+          "name": "addresses",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         }
       ],
       "enabled": true,
       "output_schema": {
         "status": ""
-      }
+      },
+      "open": false
     },
     {
       "title": "创建Service对象",
@@ -103,54 +99,55 @@
       "parameters": [
         {
           "title": "Host",
-          "name": "host",
           "type": "text",
+          "name": "host",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Username",
-          "name": "username",
           "type": "text",
+          "name": "username",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Password",
-          "name": "password",
           "type": "password",
+          "name": "password",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Protocol List",
-          "name": "protocol_list",
           "type": "json",
+          "name": "protocol_list",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Port List",
-          "name": "port_list",
           "type": "json",
+          "name": "port_list",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         }
       ],
       "enabled": true,
       "output_schema": {
         "status": ""
-      }
+      },
+      "open": false
     },
     {
       "title": "创建Policy",
@@ -161,99 +158,127 @@
       "parameters": [
         {
           "title": "Host",
-          "name": "host",
           "type": "text",
+          "name": "host",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Username",
-          "name": "username",
           "type": "text",
+          "name": "username",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Password",
-          "name": "password",
           "type": "password",
+          "name": "password",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Policy Name",
-          "name": "name",
           "type": "text",
+          "name": "name",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Incoming Interface",
-          "name": "srcintf",
           "type": "json",
+          "name": "srcintf",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": "accept"
         },
         {
           "title": "Outgoing Interface",
-          "name": "dstintf",
           "type": "json",
+          "name": "dstintf",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": "accept"
         },
         {
           "title": "Source",
-          "name": "srcaddr",
           "type": "json",
+          "name": "srcaddr",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": "accept"
         },
         {
           "title": "Destination",
-          "name": "dstaddr",
           "type": "json",
+          "name": "dstaddr",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": "accept"
         },
         {
           "title": "Service",
-          "name": "service",
           "type": "json",
+          "name": "service",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Schedule",
-          "name": "schedule",
           "type": "text",
+          "name": "schedule",
           "required": false,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": "always"
+        },
+        {
+          "title": "Log Start",
+          "type": "checkbox",
+          "name": "log_start",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": false
+        },
+        {
+          "title": "Log End",
+          "type": "checkbox",
+          "name": "log_end",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": false
+        },
+        {
+          "title": "Log Deny",
+          "type": "checkbox",
+          "name": "log_deny",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": false
         }
       ],
       "enabled": true,
       "output_schema": {
         "status": ""
-      }
+      },
+      "open": true
     },
     {
       "title": "检查当前HA状态",
@@ -264,36 +289,37 @@
       "parameters": [
         {
           "title": "Host",
-          "name": "host",
           "type": "text",
+          "name": "host",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Username",
-          "name": "username",
           "type": "text",
+          "name": "username",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Password",
-          "name": "password",
           "type": "password",
+          "name": "password",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         }
       ],
       "enabled": true,
       "output_schema": {
         "status": ""
-      }
+      },
+      "open": false
     },
     {
       "title": "获取Zone名字",
@@ -304,54 +330,67 @@
       "parameters": [
         {
           "title": "Host",
-          "name": "host",
           "type": "text",
+          "name": "host",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Username",
-          "name": "username",
           "type": "text",
+          "name": "username",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "Password",
-          "name": "password",
           "type": "password",
+          "name": "password",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         },
         {
           "title": "vrouter",
-          "name": "vrouter",
           "type": "text",
+          "name": "vrouter",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": "trust-vr"
         },
         {
           "title": "interface_name",
-          "name": "interface_name",
           "type": "text",
+          "name": "interface_name",
           "required": true,
-          "editable": true,
           "visible": true,
+          "editable": true,
           "value": ""
         }
       ],
       "enabled": true,
       "output_schema": {
         "status": ""
-      }
+      },
+      "open": false
     }
-  ]
+  ],
+  "category": [
+    "firewall"
+  ],
+  "active": true,
+  "cs_compatible": true,
+  "system": false,
+  "playbook_collections": [],
+  "icon_small": "",
+  "icon_large": "",
+  "help_online": "",
+  "vendor_version": null,
+  "cs_approved": false
 }

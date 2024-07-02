@@ -90,55 +90,31 @@ def get_zone(config, params):
         raise ConnectorError(str(err))
 
 
-def create_payload(params):
-    payload = {
-        "entry": {
-            "@name": params.get("name"),
-            "from": {"member": [params.get("from")] if params.get("from") else []},
-            "to": {"member": [params.get("to")] if params.get("to") else []},
-            "source": {
-                "member": (params.get("source") if params.get("source") else [])
-            },
-            "destination": {
-                "member": (
-                    params.get("destination") if params.get("destination") else []
-                )
-            },
-            "service": {
-                "member": (params.get("service") if params.get("service") else [])
-            },
-            "application": {
-                "member": (
-                    params.get("application").split(",")
-                    if params.get("application")
-                    else []
-                )
-            },
-            "action": (
-                POLICY_ACTION.get(params.get("action")) if params.get("action") else ""
-            ),
-            "category": {
-                "member": (
-                    params.get("category").split(",") if params.get("category") else ""
-                )
-            },
-            "source-user": {
-                "member": (
-                    params.get("source-user").split(",")
-                    if params.get("source-user")
-                    else ""
-                )
-            },
-            "rule-type": (
-                params.get("rule-type").lower() if params.get("rule-type") else ""
-            ),
-            "disabled": params.get("disable").lower() if params.get("disable") else "",
+def get_ha_status(config, params):
+    try:
+        pa = PaloAltoCustom(config, params)
+        pa.setupApiKey(params["username"], params["password"])
+        payload = {
+            "type": "op",
+            "cmd": "<show><high-availability><state></state></high-availability></show>",
+            "key": pa._key,
         }
-    }
-    if params.get("attributes"):
-        payload["entry"].update(params.get("attributes"))
-    payload = check_payload(payload)
-    return payload
+        res_text = pa.make_xml_call(data=payload)
+        tree = ElementTree.fromstring(res_text)
+        check_ha_enable = tree.find("result/enabled").text
+        if check_ha_enable == "no":
+            # HA is not enabled, and use current ip
+            return True
+
+        # check if current device is active or passive
+        check_ha_state = tree.find("result/group/local-info/state").text
+        if check_ha_state == "active":
+            return True
+        return False
+
+    except Exception as err:
+        logger.exception(str(err))
+        raise ConnectorError(str(err))
 
 
 def create_address(config, params):
@@ -159,7 +135,7 @@ def create_address(config, params):
                 mask = int(obj.prefixlen)
                 if mask == 32:
                     name = f"Host_{str(net)}"
-                    ip = f"{addr}/{mask}"
+                    ip = f"{net}/{mask}"
                 else:
                     name = f"Network_{str(net)}_{mask}"
                     ip = f"{str(net)}/{mask}"
@@ -262,12 +238,78 @@ def create_service(config, params):
         raise ConnectorError(str(err))
 
 
+def create_security_rule_payload(params):
+
+    payload = {
+        "entry": {
+            "@name": params.get("name"),
+            "from": {"member": [params.get("from")] if params.get("from") else []},
+            "to": {"member": [params.get("to")] if params.get("to") else []},
+            "source": {
+                "member": (params.get("source") if params.get("source") else [])
+            },
+            "destination": {
+                "member": (
+                    params.get("destination") if params.get("destination") else []
+                )
+            },
+            "service": {
+                "member": (params.get("service") if params.get("service") else [])
+            },
+            "application": {
+                "member": (
+                    params.get("application").split(",")
+                    if params.get("application")
+                    else []
+                )
+            },
+            "action": (
+                POLICY_ACTION.get(params.get("action")) if params.get("action") else ""
+            ),
+            "category": {
+                "member": (
+                    params.get("category").split(",") if params.get("category") else ""
+                )
+            },
+            "source-user": {
+                "member": (
+                    params.get("source-user").split(",")
+                    if params.get("source-user")
+                    else ""
+                )
+            },
+            "rule-type": (
+                params.get("rule-type").lower() if params.get("rule-type") else ""
+            ),
+            "disabled": params.get("disable").lower() if params.get("disable") else "",
+        }
+    }
+
+    if params.get("log_start"):
+        payload["entry"]["log-start"] = params.get("log_start")
+    if params.get("log_end"):
+        payload["entry"]["log-end"] = params.get("log_end")
+    if params.get("log_setting"):
+        payload["entry"]["log-setting"] = params.get("log_setting")
+    if params.get("profile_setting"):
+        payload["entry"]["profile-setting"] = {
+            "group": {"member": params.get("profile_setting").split(",")}
+        }
+
+    if params.get("attributes"):
+        payload["entry"].update(params.get("attributes"))
+
+    payload = check_payload(payload)
+    logger.debug("Payload: {0}".format(payload))
+    return payload
+
+
 def create_security_rule(config, params):
     try:
         pa = PaloAltoCustom(config, params)
         pa.setupApiKey(params["username"], params["password"])
 
-        payload = create_payload(params)
+        payload = create_security_rule_payload(params)
         try:
             res = pa.make_rest_call(
                 endpoint="/Policies/SecurityRules",
@@ -315,4 +357,5 @@ operations = {
     "create_service": create_service,
     "create_security_rule": create_security_rule,
     "get_zone": get_zone,
+    "get_ha_status": get_ha_status,
 }

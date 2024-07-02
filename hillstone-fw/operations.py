@@ -24,7 +24,7 @@ class Endpoint:
     address = "addrbook_address"
     service = "servicebook_service"
     policy = "policy_rule"
-    zone = "zone"
+    zone = "api/zone"
 
 
 #
@@ -243,6 +243,11 @@ def create_policy(config, params):
     #     "comments": params.get("comments") if params.get("comments") else "fortisoar",
     #     "logtraffic": params.get("logtraffic"),
     # }
+
+    log_start = params.get("log_start")
+    log_end = params.get("log_end")
+    log_deny = params.get("log_deny")
+
     data = [
         {
             "id": -1,
@@ -265,6 +270,9 @@ def create_policy(config, params):
                 )
             },
             "action": "2",
+            "log_start": "1" if log_start else "0",
+            "log_end": "1" if log_end else "0",
+            "log_deny": "1" if log_deny else "0",
         }
     ]
 
@@ -300,7 +308,7 @@ def get_zone_by_interface(config, params):
         interface_name = params.get("interface_name")
         client = HillStoneFWClient(config, params["username"], params["password"])
         client.login()
-        res = client.request("GET", Endpoint.zone)
+        res = client.request("GET", Endpoint.zone).json()
         # sample data
         # {
         #     "name": "untrust",
@@ -316,15 +324,16 @@ def get_zone_by_interface(config, params):
         #     ]
         # }
         # filter the vr and interface_list and return the zone name
-        for zone in res.json()["result"]:
-            if vrouer and zone["vr"] != vrouer:
-                continue
-            if (
-                interface_name
-                and "interface_list" in zone
-                and interface_name in zone["interface_list"]
-            ):
-                return zone["name"]
+        if "result" in res:
+            for zone in res["result"]:
+                if vrouer and zone["vr"] != vrouer:
+                    continue
+                if (
+                    interface_name
+                    and "interface_list" in zone
+                    and interface_name in zone["interface_list"]
+                ):
+                    return zone["name"]
 
     except Exception as err:
         logger.exception("Error: {0}".format(err))

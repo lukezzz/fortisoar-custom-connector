@@ -7,7 +7,7 @@ logger = get_logger("fortigate-fw")
 
 class Endpoint:
     monitor_router_lookup = "router/lookup"
-    get_ha_status = "system/ha-statistics/select/"
+    get_ha_status = "system/ha-checksums"
     address = "firewall/address"
     service = "firewall.service/custom"
     policy = "firewall/policy"

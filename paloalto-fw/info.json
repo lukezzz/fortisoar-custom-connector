@@ -428,6 +428,54 @@
           "required": false,
           "visible": true,
           "editable": true
+        },
+        {
+          "title": "在会话开始时记录",
+          "description": "",
+          "type": "select",
+          "name": "log_start",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "options": [
+            "yes",
+            "no"
+          ],
+          "value": "yes"
+        },
+        {
+          "title": "在会话结束时记录",
+          "description": "",
+          "type": "select",
+          "name": "log_end",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "options": [
+            "yes",
+            "no"
+          ],
+          "value": "yes"
+        },
+        {
+          "title": "日志转发",
+          "description": "",
+          "type": "text",
+          "name": "log_setting",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "配置文件类型(组)",
+          "description": "",
+          "type": "text",
+          "name": "profile_setting",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": ""
         }
       ],
       "output_schema": {
@@ -489,6 +537,43 @@
           "visible": true,
           "editable": true,
           "value": "any"
+        }
+      ]
+    },
+    {
+      "operation": "get_ha_status",
+      "title": "Get High Availability Status",
+      "description": "Retrieves the high availability status from Palo Alto Firewall based on the input parameters that you have specified.",
+      "enabled": true,
+      "category": "investigation",
+      "annotation": "get_ha_status",
+      "parameters": [
+        {
+          "title": "Server URL",
+          "description": "IP address or Hostname of the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "server_url"
+        },
+        {
+          "title": "Username",
+          "description": "Username to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "description": "Password to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
         }
       ]
     }

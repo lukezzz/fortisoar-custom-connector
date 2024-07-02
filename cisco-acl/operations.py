@@ -246,7 +246,7 @@ class CiscoOS(CiscoOSConnect):
 
         data = self.reformat_cmd_output(cmd_output, rem_command=True, to_list=False)
 
-        if "Duplicate" in data:
+        if data and "Duplicate" in data:
             raise ConnectorError("Duplicate sequence number")
 
         return data
