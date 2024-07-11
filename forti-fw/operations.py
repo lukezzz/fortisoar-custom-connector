@@ -11,6 +11,7 @@ class Endpoint:
     address = "firewall/address"
     service = "firewall.service/custom"
     policy = "firewall/policy"
+    zone = "system/zone"
 
 
 def route_lookup(config, params):
@@ -38,6 +39,16 @@ def route_lookup(config, params):
         client.login(host=host, vdom=vdom)
         parameters = {"destination": test_ip}
         response = client.monitor(path, parameters=parameters)
+        if response.get("status") == "success":
+            if response["results"].get("interface"):
+                intf_name = response["results"]["interface"]
+                lookup_params = {"filter": f"interface=={intf_name}"}
+                path = f"{Endpoint.zone}"
+                zone_res = client.get(path, parameters=lookup_params)
+                if zone_res.get("results") and len(zone_res["results"]) > 0:
+                    zone_name = zone_res["results"][0]["name"]
+                    response["results"]["interface"] = zone_name
+
         client.logout()
         return response
     except Exception as err:

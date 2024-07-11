@@ -74,7 +74,7 @@ def create_address(config, params):
                 mask = obj.netmask
                 if str(mask) == "255.255.255.255":
                     name = f"Host_{str(net)}"
-                    ip_addr = addr
+                    ip_addr = str(net)
                 else:
                     name = f"Network_{str(net)}_{obj.prefixlen}"
                     ip_addr = str(net)
