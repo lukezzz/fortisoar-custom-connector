@@ -204,13 +204,13 @@ class CiscoOS(CiscoOSConnect):
             logger.info("Invalid IP address")
             raise ConnectorError("Invalid IP address")
 
-        command = f"show ip route {test_ip}"
+        command = f"show ip route {test_ip} vrf all"
         cmd_output = self.execute_command(command)
         cmd_output = self.reformat_cmd_output(
             cmd_output, rem_command=True, to_list=False
         )
 
-        vlan_id_pattern = re.compile(r"Vlan(\d+)")
+        vlan_id_pattern = re.compile(r"Vlan(\d+)|direct")
         match = vlan_id_pattern.search(cmd_output)
         if match:
             vlan_id = match.group(1)
@@ -227,6 +227,7 @@ class CiscoOS(CiscoOSConnect):
         curr_data = {"Command": command, "Output": cmd_output, "Status": "Success"}
         logger.info("get_route_info(): Executed command =  '{}'".format(command))
         logger.info("Command executed Successfully")
+        self.disconnect()
         return curr_data
 
     def send_config_set(self, params):
@@ -240,15 +241,15 @@ class CiscoOS(CiscoOSConnect):
         cmd_output = self.execute_command(cmd_to_run)
         logger.info("Executed command = {}".format(cmd_to_run))
 
-        for command in params.get("commands"):
-            cmd_output = self.execute_command(command)
-            logger.info("Executed command =  '{}'".format(command))
+        commands = "\n".join(params.get("commands"))
+        cmd_output = self.execute_command(commands)
+        logger.info("Executed command =  '{}'".format(commands))
 
         data = self.reformat_cmd_output(cmd_output, rem_command=True, to_list=False)
 
         if data and "Duplicate" in data:
             raise ConnectorError("Duplicate sequence number")
-
+        self.disconnect()
         return data
 
     def save_config(self, params):
@@ -262,6 +263,7 @@ class CiscoOS(CiscoOSConnect):
         cmd_to_run = "copy running-config startup-config"
         cmd_output = self.execute_command(cmd_to_run)
         data = self.reformat_cmd_output(cmd_output, rem_command=True, to_list=False)
+        self.disconnect()
         return data
 
 

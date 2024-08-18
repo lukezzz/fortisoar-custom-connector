@@ -43,17 +43,32 @@ def route_lookup(config, params):
             if response["results"].get("interface"):
                 intf_name = response["results"]["interface"]
                 lookup_params = {"filter": f"interface=={intf_name}"}
-                path = f"{Endpoint.zone}"
-                zone_res = client.get(path, parameters=lookup_params)
-                if zone_res.get("results") and len(zone_res["results"]) > 0:
-                    zone_name = zone_res["results"][0]["name"]
-                    response["results"]["interface"] = zone_name
+                path = "system/zone"
+                zone_list = client.get(path)
+                if zone_list.get("results") and len(zone_list["results"]) > 0:
+                    for zone in zone_list['results']:
+                        zone_name = zone['name']
+                        for zone_interface in zone['interface']:
+                            if zone_interface['interface-name'] == intf_name:
+                                response["results"]["interface"] = zone_name
 
         client.logout()
         return response
     except Exception as err:
         logger.exception("Error: {0}".format(err))
         raise ConnectorError("Error: {0}".format(err))
+
+
+def check_node_status(result):
+    # Check if "is_root_primary" is in result and its value is True
+    if "is_root_primary" in result:
+        return result["is_root_primary"]
+    # Check if "is_root_master" is in result and its value == 1 return True else False
+    elif "is_root_master" in result:
+        return True if result["is_root_master"] == 1 else False
+    # Return True we can not get ha status, use default node
+    else:
+        return True
 
 
 def get_ha_status(config, params):
@@ -73,11 +88,9 @@ def get_ha_status(config, params):
             # device is in standalone mode
             return True
         for result in results:
-            if (
-                result.get("serial_no") == current_node_sn
-                and result.get("is_root_primary") == True
-            ):
-                return True
+            if result.get("serial_no") == current_node_sn:
+                return check_node_status(result)
+            return False
         client.logout()
         return False
     except Exception as err:

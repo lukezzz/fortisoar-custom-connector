@@ -103,6 +103,7 @@ class CiscoOSConnect:
         size = MAX_SIZE_FOR_OUTPUT
         self._shell_channel.settimeout(RECEIVE_SECOND_DATA_TIMEOUT)
         try:
+            self._shell_channel.send("terminal length 0\n")
             self._shell_channel.send(command + "\n")
         except Exception as error:
             logger.exception(
@@ -195,3 +196,13 @@ class CiscoOSConnect:
         curr_data[1] = {"Command": command, "Output": cmd_output, "Status": "Success"}
         logger.info("Executed command =  '{}' ".format(command))
         return curr_data
+
+    def disconnect(self):
+        """
+        Disconnect the ssh connection
+        """
+        if self._ssh_client is not None:
+            self._ssh_client.close()
+        self._ssh_client = None
+        self._shell_channel = None
+        return

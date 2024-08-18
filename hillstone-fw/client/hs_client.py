@@ -55,6 +55,7 @@ class HillStoneFWClient:
             "lang": "en",
         }
         res = self._session.post(url, json=login_data, verify=False)
+        logger.debug("Login request body: %s", login_data)
         logger.debug("Login response: %s", res.text)
         res_json = res.json()
         if res_json["success"]:

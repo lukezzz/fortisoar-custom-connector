@@ -36,7 +36,7 @@ class HuaweiOSConnect:
             status_code = self.connect_to_shell(params)
             if not status_code:
                 return status_code
-            cmd_list = ["display device"]
+            cmd_list = ["screen-length 0 temporary", "display device"]
             for cmd in cmd_list:
                 try:
                     cmd_output = self.execute_command(cmd)
@@ -191,3 +191,12 @@ class HuaweiOSConnect:
         curr_data[1] = {"Command": command, "Output": cmd_output, "Status": "Success"}
         logger.info("Executed command =  '{}' ".format(command))
         return curr_data
+
+    def disconnect(self):
+        """
+        Disconnect the ssh client
+        """
+        if self._ssh_client is not None:
+            self._ssh_client.close()
+            self._ssh_client = None
+        return

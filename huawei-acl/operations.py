@@ -16,6 +16,14 @@ def verify_ipv4_or_subnet(input_str):
         return False
 
 
+def get_vpn_instance_list(output):
+    logger.info("get_vpn_instance_list(): output =  '{}'".format(output))
+    # match VPN instance names
+    # vpn_instance_list = re.findall(r"^\s+(\S+)\s+IPv4", output, re.MULTILINE)
+    vpn_instance_list = re.findall(r"^\s+(\S+)\s+IPv4\s*$", output, re.MULTILINE)
+    return vpn_instance_list
+
+
 class HuaweiOS(HuaweiOSConnect):
     def __init__(self):
         super(HuaweiOS, self).__init__()
@@ -51,29 +59,65 @@ class HuaweiOS(HuaweiOSConnect):
             logger.info("Invalid IP address")
             raise ConnectorError("Invalid IP address")
 
-        command = f"display ip routing-table {test_ip}"
-        cmd_output = self.execute_command(command)
-        cmd_output = self.reformat_cmd_output(
-            cmd_output, rem_command=True, to_list=False
-        )
+        check_vrf_cmd = "display ip vpn-instance"
+        check_vrf_output = self.execute_command(check_vrf_cmd)
 
-        vlan_id_pattern = re.compile(r"Vlanif(\d+)")
-        match = vlan_id_pattern.search(cmd_output)
-        if match:
-            vlan_id = match.group(1)
-            curr_data = {
-                "Command": command,
-                "Output": cmd_output,
-                "Status": "Success",
-                "VlanID": vlan_id,
-            }
+        vrf_list = get_vpn_instance_list(check_vrf_output)
+        logger.info("get_route_info(): VPN instance list =  '{}'".format(vrf_list))
+
+        if not vrf_list:
+            command = f"display ip routing-table {test_ip}"
             logger.info("get_route_info(): Executed command =  '{}'".format(command))
-            logger.info("Command executed Successfully")
-            return curr_data
+            cmd_output = self.execute_command(command)
+            cmd_output = self.reformat_cmd_output(
+                cmd_output, rem_command=True, to_list=False
+            )
 
-        curr_data = {"Command": command, "Output": cmd_output, "Status": "Success"}
-        logger.info("get_route_info(): Executed command =  '{}'".format(command))
-        logger.info("Command executed Successfully")
+            # match Vlanif\d+ and route must be "Direct" type
+            vlan_id_pattern = re.compile(
+                r"\s+Direct\s+\d+\s+\d+\s+\S+\s+\d+\.\d+\.\d+\.\d+\s+Vlanif(\d+)"
+            )
+            match = vlan_id_pattern.search(cmd_output)
+            if match and match.group(1):
+                vlan_id = match.group(1)
+                curr_data = {
+                    "Command": command,
+                    "Output": cmd_output,
+                    "Status": "Success",
+                    "VlanID": vlan_id,
+                }
+
+                logger.info("Command executed Successfully")
+                return curr_data
+
+        for vrf in vrf_list:
+
+            command = f"display ip routing-table vpn-instance {vrf} {test_ip}"
+            logger.info("get_route_info(): Executed command =  '{}'".format(command))
+            cmd_output = self.execute_command(command)
+            cmd_output = self.reformat_cmd_output(
+                cmd_output, rem_command=True, to_list=False
+            )
+            # match Vlanif\d+ and route must be "Direct" type
+            vlan_id_pattern = re.compile(
+                r"\s+Direct\s+\d+\s+\d+\s+\S+\s+\d+\.\d+\.\d+\.\d+\s+Vlanif(\d+)"
+            )
+            match = vlan_id_pattern.search(cmd_output)
+            if match and match.group(1):
+                vlan_id = match.group(1)
+                curr_data = {
+                    "Command": command,
+                    "Output": cmd_output,
+                    "Status": "Success",
+                    "VlanID": vlan_id,
+                }
+
+                logger.info("Command executed Successfully")
+                return curr_data
+
+        curr_data = {"Command": "", "Output": "", "Status": "Failed"}
+        logger.info("Command executed Failed")
+        self.disconnect()
         return curr_data
 
     def send_config_set(self, params):
@@ -96,6 +140,9 @@ class HuaweiOS(HuaweiOSConnect):
         if "Duplicate" in data:
             raise ConnectorError("Duplicate sequence number")
 
+        commit_cmd = "commit"
+        cmd_output = self.execute_command(commit_cmd)
+        self.disconnect()
         return data
 
     def save_config(self, params):
@@ -114,6 +161,7 @@ class HuaweiOS(HuaweiOSConnect):
             except:
                 return "Failed to save configuration"
         data = self.reformat_cmd_output(cmd_output, rem_command=True, to_list=False)
+        self.disconnect()
         return data
 
 

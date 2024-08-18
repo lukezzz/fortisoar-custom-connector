@@ -350,12 +350,39 @@ def rest_check_health(config):
     return True
 
 
+def commit_config(config, params):
+
+    logger.debug("Committing the Request changes")
+    try:
+
+        pa = PaloAltoCustom(config, params)
+        pa.setupApiKey(params["username"], params["password"])
+        data = {
+            "type": "commit",
+            "cmd": "<commit></commit>",
+            "key": pa._key,
+        }
+        res = requests.post(
+            pa._server_url + "/api",
+            data=data,
+            verify=False,
+        )
+        if res.ok:
+            return True
+        else:
+            logger.error(res.text)
+            raise ConnectorError(res.text)
+    except Exception as err:
+        logger.exception(str(err))
+        raise ConnectorError(str(err))
+
+
 operations = {
     "create_security_rule": create_security_rule,
     "create_address": create_address,
     "get_address_details": get_address_details,
     "create_service": create_service,
-    "create_security_rule": create_security_rule,
     "get_zone": get_zone,
     "get_ha_status": get_ha_status,
+    "commit_config": commit_config,
 }

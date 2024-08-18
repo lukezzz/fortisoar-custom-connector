@@ -576,6 +576,43 @@
           "name": "password"
         }
       ]
+    },
+    {
+      "operation": "commit_config",
+      "title": "Commit Configuration",
+      "description": "Commits the configuration changes made in Palo Alto Firewall.",
+      "enabled": true,
+      "category": "investigation",
+      "annotation": "commit_config",
+      "parameters": [
+        {
+          "title": "Server URL",
+          "description": "IP address or Hostname of the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "server_url"
+        },
+        {
+          "title": "Username",
+          "description": "Username to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "text",
+          "name": "username"
+        },
+        {
+          "title": "Password",
+          "description": "Password to access the Palo Alto Firewall",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "type": "password",
+          "name": "password"
+        }
+      ]
     }
   ],
   "category": "Firewall and Network Protection",
