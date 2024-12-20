@@ -1,0 +1,86 @@
+{
+    "name": "bitdefender",
+    "version": "0.0.1",
+    "label": "Bitdefender for case",
+    "description": "",
+    "publisher": "SyPeng",
+    "icon_small_name": "",
+    "icon_large_name": "",
+    "id": 460,
+    "configuration": {
+        "fields": [
+            {
+                "title": "url",
+                "description": "request url",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "url"
+            },
+            {
+                "title": "token",
+                "description": "access token",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "username"
+            },
+            {
+                "title": "parent_id",
+                "description": "endpoint parent_id",
+                "required": true,
+                "editable": true,
+                "visible": true,
+                "type": "text",
+                "name": "parent_id"
+            }
+        ]
+    },
+    "operations": [
+        {
+            "title": "get_endpoint_id",
+            "operation": "get_endpoint_id",
+            "description": "",
+            "parameters": [
+                {
+                    "title": "ip_address",
+                    "type": "text",
+                    "name": "ip_address",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                }
+            ],
+            "open": false
+        },
+        {
+            "title": "incidents_endpoint",
+            "operation": "incidents_endpoint",
+            "description": "",
+            "parameters": [
+                {
+                    "title": "endpoint_id",
+                    "type": "text",
+                    "name": "endpoint_id",
+                    "required": true,
+                    "visible": true,
+                    "editable": true,
+                    "value": ""
+                }
+            ],
+            "open": false
+        }
+    ],
+    "category": "",
+    "active": true,
+    "cs_compatible": true,
+    "system": false,
+    "playbook_collections": [],
+    "icon_small": "",
+    "icon_large": "",
+    "help_online": null,
+    "vendor_version": null
+}
