@@ -276,7 +276,7 @@ def create_gtm_server(config, params):
         "monitor": monitor,
         "product": product,
         "virtualServers": virtual_servers,
-        "gtmServers": gtm_servers,
+        "addresses": gtm_servers,
     }
     logger.debug(post_data)
 
@@ -295,10 +295,10 @@ def create_gtm_pool(config, params):
     client = F5Client(config, host, username, password)
 
     service_name = params.get("service_name")
-
+    record_type = "a"
     name = service_name
     # check if gtm pool exists, return gtm pool
-    check_gtm_pool_url = f"{Endpoint.gtm_pool}/{name}"
+    check_gtm_pool_url = f"{Endpoint.gtm_pool}/{record_type}/{name}"
     check_gtm_pool_result = client.run(check_gtm_pool_url, method="GET")
     if check_gtm_pool_result.status_code == 200 and check_gtm_pool_result.json():
         return check_gtm_pool_result.json()
@@ -313,8 +313,8 @@ def create_gtm_pool(config, params):
         "members": members,
     }
     logger.debug(post_data)
-
-    response = client.run(Endpoint.gtm_pool, method="POST", data=post_data)
+    create_url = f"{Endpoint.gtm_pool}/{record_type}"
+    response = client.run(create_url, method="POST", data=post_data)
     if response.status_code == 200:
         return response.json()
     else:
@@ -347,8 +347,8 @@ def create_gtm_wide_ip(config, params):
         "pools": pools,
     }
     logger.debug(post_data)
-
-    response = client.run(Endpoint.gtm_wide_ip, method="POST", data=post_data)
+    create_url = f"{Endpoint.gtm_wide_ip}/{record_type}"
+    response = client.run(create_url, method="POST", data=post_data)
     if response.status_code == 200:
         return response.json()
     else:

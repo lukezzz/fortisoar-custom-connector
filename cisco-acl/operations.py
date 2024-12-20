@@ -4,6 +4,7 @@ from connectors.core.connector import get_logger, ConnectorError
 import ipaddress
 import re
 from typing import List
+from .cisco_nxapi import CiscoNXAPIClient
 
 logger = get_logger("cisco-os")
 
@@ -11,7 +12,8 @@ logger = get_logger("cisco-os")
 def verify_ipv4_or_subnet(input_str):
     try:
         network = ipaddress.ip_network(input_str, strict=False)
-        return str(network.network_address)
+        hosts = list(network.hosts())
+        return str(hosts[0])
     except ValueError:
         return False
 
@@ -204,13 +206,24 @@ class CiscoOS(CiscoOSConnect):
             logger.info("Invalid IP address")
             raise ConnectorError("Invalid IP address")
 
-        command = f"show ip route {test_ip} vrf all"
+        # check os version
+        command = "show version"
+        cmd_output = self.execute_command(command)
+        cmd_output = self.reformat_cmd_output(
+            cmd_output, rem_command=True, to_list=False
+        )
+        command = (
+            f"show ip route {test_ip} vrf all"
+            if "NX-OS" in cmd_output
+            else f"show ip route {test_ip}"
+        )
+
         cmd_output = self.execute_command(command)
         cmd_output = self.reformat_cmd_output(
             cmd_output, rem_command=True, to_list=False
         )
 
-        vlan_id_pattern = re.compile(r"Vlan(\d+)|direct")
+        vlan_id_pattern = re.compile(r"Vlan(\d+)")
         match = vlan_id_pattern.search(cmd_output)
         if match:
             vlan_id = match.group(1)
@@ -308,10 +321,16 @@ def save_config(config, params):
     return obj.save_config(params)
 
 
+def nxapi_add_acl(config, params):
+    obj = CiscoNXAPIClient(config, params)
+    return obj.nxapi_send_cmd(params)
+
+
 operations = {
     "get_config": get_config,
     "get_version": get_version,
     "get_route_info": get_route_info,
     "config_acl": config_acl,
     "save_config": save_config,
+    "nxapi_add_acl": nxapi_add_acl,
 }
