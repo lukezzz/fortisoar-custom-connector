@@ -24,6 +24,25 @@ def get_vpn_instance_list(output):
     return vpn_instance_list
 
 
+def test_and_match(command, cmd_output):
+    # match Vlanif\d+ and route must be "Direct" type
+    vlan_id_pattern = re.compile(
+        r"\s+Direct\s+\d+\s+\d+\s+\S+\s+\d+\.\d+\.\d+\.\d+\s+Vlanif(\d+)"
+    )
+    match = vlan_id_pattern.search(cmd_output)
+    if match and match.group(1):
+        vlan_id = match.group(1)
+        curr_data = {
+            "Command": command,
+            "Output": cmd_output,
+            "Status": "Success",
+            "VlanID": vlan_id,
+        }
+        logger.info("Command executed Successfully")
+        return curr_data
+    return False
+
+
 class HuaweiOS(HuaweiOSConnect):
     def __init__(self):
         super(HuaweiOS, self).__init__()
@@ -73,22 +92,9 @@ class HuaweiOS(HuaweiOSConnect):
                 cmd_output, rem_command=True, to_list=False
             )
 
-            # match Vlanif\d+ and route must be "Direct" type
-            vlan_id_pattern = re.compile(
-                r"\s+Direct\s+\d+\s+\d+\s+\S+\s+\d+\.\d+\.\d+\.\d+\s+Vlanif(\d+)"
-            )
-            match = vlan_id_pattern.search(cmd_output)
-            if match and match.group(1):
-                vlan_id = match.group(1)
-                curr_data = {
-                    "Command": command,
-                    "Output": cmd_output,
-                    "Status": "Success",
-                    "VlanID": vlan_id,
-                }
-
-                logger.info("Command executed Successfully")
-                return curr_data
+            result = test_and_match(command, cmd_output)
+            if result:
+                return result
 
         for vrf in vrf_list:
 
@@ -98,22 +104,20 @@ class HuaweiOS(HuaweiOSConnect):
             cmd_output = self.reformat_cmd_output(
                 cmd_output, rem_command=True, to_list=False
             )
-            # match Vlanif\d+ and route must be "Direct" type
-            vlan_id_pattern = re.compile(
-                r"\s+Direct\s+\d+\s+\d+\s+\S+\s+\d+\.\d+\.\d+\.\d+\s+Vlanif(\d+)"
-            )
-            match = vlan_id_pattern.search(cmd_output)
-            if match and match.group(1):
-                vlan_id = match.group(1)
-                curr_data = {
-                    "Command": command,
-                    "Output": cmd_output,
-                    "Status": "Success",
-                    "VlanID": vlan_id,
-                }
+            result = test_and_match(command, cmd_output)
+            if result:
+                return result
 
-                logger.info("Command executed Successfully")
-                return curr_data
+        # if no match found recheck the default routing table
+        command = f"display ip routing-table {test_ip}"
+        logger.info("get_route_info(): Executed command =  '{}'".format(command))
+        cmd_output = self.execute_command(command)
+        cmd_output = self.reformat_cmd_output(
+            cmd_output, rem_command=True, to_list=False
+        )
+        result = test_and_match(command, cmd_output)
+        if result:
+            return result
 
         curr_data = {"Command": "", "Output": "", "Status": "Failed"}
         logger.info("Command executed Failed")

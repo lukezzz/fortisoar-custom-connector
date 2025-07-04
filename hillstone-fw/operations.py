@@ -15,6 +15,7 @@ protocol_type_dict = {
     "ST": 5,
     "TCP": 6,
     "UDP": 17,
+    "ip": 0,
 }
 
 
@@ -319,11 +320,15 @@ def get_zone_by_interface(config, params):
         #     "wan_type": "1",
         #     "idp_direction": "0",
         #     "ad_profile": "1",
-        #     "interface_list": [
+        #     "interface_list": [  ## this key is not always present
         #         "aggregate4"
         #     ]
         # }
         # filter the vr and interface_list and return the zone name
+        if "success" in res and res["success"] is False:
+            client.login(is_api_login=True)
+            res = client.request("GET", Endpoint.zone).json()
+
         if "result" in res:
             for zone in res["result"]:
                 if vrouer and zone["vr"] != vrouer:
@@ -338,6 +343,11 @@ def get_zone_by_interface(config, params):
     except Exception as err:
         logger.exception("Error: {0}".format(err))
         raise ConnectorError("Error: {0}".format(err))
+
+
+def get_vrouter(config, params):
+    vrouter = config.get("vrouter")
+    return vrouter
 
 
 def get_ha_status(config, params):
@@ -383,4 +393,5 @@ operations = {
     "create_policy": create_policy,
     "get_ha_status": get_ha_status,
     "get_zone_by_interface": get_zone_by_interface,
+    "get_vrouter": get_vrouter,
 }

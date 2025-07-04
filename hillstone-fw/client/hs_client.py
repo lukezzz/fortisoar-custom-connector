@@ -46,9 +46,13 @@ class HillStoneFWClient:
 
         self.url_prefix = f"https://{self.host}/rest"
 
-    def login(self):
+    def login(self, is_api_login=False):
         logger.debug("Logging in to Hillstone")
-        url = f"{self.url_prefix}/login"
+        url = (
+            f"{self.url_prefix}/api/login"
+            if is_api_login
+            else f"{self.url_prefix}/login"
+        )
         login_data = {
             "username": self.username,
             "password": self.password,
