@@ -1,0 +1,378 @@
+{
+  "name": "ip-blocking-forti",
+  "label": "FortiGate IP Blocking",
+  "description": "FortiGate IP Blocking connector for blocking and unblocking IP addresses using FortiGate firewall",
+  "publisher": "Hftech",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "version": "1.0.0",
+  "category": "firewall",
+  "icon_small_name": "Fortinet_small.png",
+  "icon_large_name": "Fortinet_medium.png",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "title": "Host",
+        "name": "url",
+        "type": "text",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "tooltip": "ip or name (fqdn) can include a port like 10.40.40.40:8443"
+      },
+      {
+        "title": "Verify SSL",
+        "name": "verify_ssl",
+        "type": "checkbox",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "value": true,
+        "description": "Specifies whether the SSL certificate for the server is to be verified or not. By default, this option is set as True."
+      },
+      {
+        "title": "VDOM",
+        "name": "vdom",
+        "type": "text",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "tooltip": "Provide VDOM CSV or List format, if VDOM mode enabled. These used for actions related to IP addresses",
+        "description": "VDOMs, in the CSV or List format, if the VDOM mode is enabled.",
+        "value": "root"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "title": "Block IP",
+      "operation": "block_ip",
+      "description": "Block IP addresses by adding them to an address group in FortiGate policy",
+      "category": "containment",
+      "annotation": "block_ip",
+      "output_schema": {
+        "already_blocked": [],
+        "newly_blocked": [],
+        "error_with_block": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "type": "text",
+          "name": "host",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "IP address or hostname of the Hillstone firewall"
+        },
+        {
+          "title": "Username",
+          "type": "text",
+          "name": "username",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Username for authentication"
+        },
+        {
+          "title": "Password",
+          "type": "password",
+          "name": "password",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Password for authentication"
+        },
+        {
+          "title": "IP Addresses",
+          "name": "ip",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "IP addresses to block (comma-separated)",
+          "description": "List of IP addresses to block"
+        },
+        {
+          "title": "IP Group Name",
+          "name": "ip_group_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Name of the address group to add IPs to",
+          "description": "Address group name in FortiGate policy"
+        },
+        {
+          "title": "IP Block Policy",
+          "name": "ip_block_policy",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Name of the blocking policy",
+          "description": "FortiGate policy name for IP blocking"
+        },
+        {
+          "title": "IP Type",
+          "name": "ip_type",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "IPv4",
+            "IPv6"
+          ],
+          "value": "IPv4",
+          "description": "IP address type"
+        },
+        {
+          "title": "NGFW Mode",
+          "name": "ngfw_mode",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "Policy Based",
+            "Profile Based"
+          ],
+          "value": "Profile Based",
+          "description": "Next Generation Firewall mode"
+        },
+        {
+          "title": "Is New Group",
+          "name": "is_new",
+          "type": "checkbox",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": false,
+          "description": "Whether this is a new address group"
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Virtual Domain name",
+          "description": "Virtual Domain (if applicable)"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Unblock IP",
+      "operation": "unblock_ip",
+      "description": "Unblock IP addresses by removing them from an address group in FortiGate policy",
+      "category": "containment",
+      "annotation": "unblock_ip",
+      "output_schema": {
+        "not_exist": [],
+        "newly_unblocked": [],
+        "error_with_unblock": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "type": "text",
+          "name": "host",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "IP address or hostname of the Hillstone firewall"
+        },
+        {
+          "title": "Username",
+          "type": "text",
+          "name": "username",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Username for authentication"
+        },
+        {
+          "title": "Password",
+          "type": "password",
+          "name": "password",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Password for authentication"
+        },
+        {
+          "title": "IP Addresses",
+          "name": "ip",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "IP addresses to unblock (comma-separated)",
+          "description": "List of IP addresses to unblock"
+        },
+        {
+          "title": "IP Group Name",
+          "name": "ip_group_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Name of the address group to remove IPs from",
+          "description": "Address group name in FortiGate policy"
+        },
+        {
+          "title": "IP Block Policy",
+          "name": "ip_block_policy",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Name of the blocking policy",
+          "description": "FortiGate policy name for IP blocking"
+        },
+        {
+          "title": "IP Type",
+          "name": "ip_type",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "IPv4",
+            "IPv6"
+          ],
+          "value": "IPv4",
+          "description": "IP address type"
+        },
+        {
+          "title": "NGFW Mode",
+          "name": "ngfw_mode",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "Policy Based",
+            "Profile Based"
+          ],
+          "value": "Profile Based",
+          "description": "Next Generation Firewall mode"
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Virtual Domain name",
+          "description": "Virtual Domain (if applicable)"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Get Blocked IPs",
+      "operation": "get_blocked_ip",
+      "description": "Get list of blocked IP addresses from FortiGate address groups",
+      "category": "investigation",
+      "annotation": "get_blocked_ip",
+      "output_schema": {
+        "addrgrp": [],
+        "addrgrp_not_exist": [],
+        "policy_name": "",
+        "dstaddr": [],
+        "srcaddr": [],
+        "srcaddr6": [],
+        "dstaddr6": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "type": "text",
+          "name": "host",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "IP address or hostname of the Hillstone firewall"
+        },
+        {
+          "title": "Username",
+          "type": "text",
+          "name": "username",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Username for authentication"
+        },
+        {
+          "title": "Password",
+          "type": "password",
+          "name": "password",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Password for authentication"
+        },
+        {
+          "title": "IP Group Names",
+          "name": "ip_group_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Address group names to query (comma-separated)",
+          "description": "List of address group names to check"
+        },
+        {
+          "title": "IP Block Policy",
+          "name": "ip_block_policy",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Name of the blocking policy",
+          "description": "FortiGate policy name for IP blocking"
+        },
+        {
+          "title": "NGFW Mode",
+          "name": "ngfw_mode",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "options": [
+            "Policy Based",
+            "Profile Based"
+          ],
+          "value": "Profile Based",
+          "description": "Next Generation Firewall mode"
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "tooltip": "Virtual Domain name",
+          "description": "Virtual Domain (if applicable)"
+        }
+      ],
+      "enabled": true
+    }
+  ]
+}

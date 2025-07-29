@@ -1,0 +1,297 @@
+{
+  "name": "ip-blocking-hillstone",
+  "version": "1.0.0",
+  "label": "Hillstone IP Blocking",
+  "description": "Hillstone Firewall IP Blocking Connector with address management capabilities",
+  "publisher": "Hftech",
+  "icon_small_name": "",
+  "icon_large_name": "",
+  "id": 282,
+  "configuration": {
+    "fields": [
+      {
+        "title": "Host",
+        "type": "text",
+        "name": "url",
+        "required": true,
+        "visible": true,
+        "editable": true,
+        "tooltip": "ip or name (fqdn) can include a port like 10.40.40.40:8443"
+      },
+      {
+        "title": "Verify SSL",
+        "type": "checkbox",
+        "name": "verify_ssl",
+        "required": false,
+        "visible": true,
+        "editable": true,
+        "value": true
+      },
+      {
+        "title": "Vsys Id",
+        "type": "text",
+        "name": "vsys_id",
+        "required": false,
+        "visible": true,
+        "editable": true,
+        "value": "root",
+        "tooltip": "Provide VDOM CSV or List format, if VDOM mode enabled. These used for actions related to IP addresses"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "title": "Block IP Addresses",
+      "operation": "block_ip",
+      "description": "Block IP addresses by adding them to an address group",
+      "category": "containment",
+      "annotation": "block_ip",
+      "parameters": [
+        {
+          "title": "Host",
+          "type": "text",
+          "name": "host",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "IP address or hostname of the Hillstone firewall"
+        },
+        {
+          "title": "Username",
+          "type": "text",
+          "name": "username",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Username for authentication"
+        },
+        {
+          "title": "Password",
+          "type": "password",
+          "name": "password",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Password for authentication"
+        },
+        {
+          "title": "IP Addresses",
+          "type": "text",
+          "name": "ip_addresses",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Comma-separated list of IP addresses or CIDR networks to block"
+        },
+        {
+          "title": "Group Name",
+          "type": "text",
+          "name": "group_name",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": "BlockedIPs",
+          "tooltip": "Name of the address group to add blocked IPs to"
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "already_blocked": [],
+        "newly_blocked": [],
+        "error_with_block": []
+      },
+      "open": false
+    },
+    {
+      "title": "Unblock IP Addresses",
+      "operation": "unblock_ip",
+      "description": "Unblock IP addresses by removing them from an address group",
+      "category": "containment",
+      "annotation": "unblock_ip",
+      "parameters": [
+        {
+          "title": "Host",
+          "type": "text",
+          "name": "host",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "IP address or hostname of the Hillstone firewall"
+        },
+        {
+          "title": "Username",
+          "type": "text",
+          "name": "username",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Username for authentication"
+        },
+        {
+          "title": "Password",
+          "type": "password",
+          "name": "password",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Password for authentication"
+        },
+        {
+          "title": "IP Addresses",
+          "type": "text",
+          "name": "ip_addresses",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Comma-separated list of IP addresses or CIDR networks to unblock"
+        },
+        {
+          "title": "Group Name",
+          "type": "text",
+          "name": "group_name",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": "BlockedIPs",
+          "tooltip": "Name of the address group to remove IPs from"
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "not_exist": [],
+        "newly_unblocked": [],
+        "error_with_unblock": []
+      },
+      "open": false
+    },
+    {
+      "title": "Get Blocked IP Addresses",
+      "operation": "get_blocked_ips",
+      "description": "Get list of blocked IP addresses from address groups",
+      "category": "investigation",
+      "annotation": "get_blocked_ips",
+      "parameters": [
+        {
+          "title": "Host",
+          "type": "text",
+          "name": "host",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "IP address or hostname of the Hillstone firewall"
+        },
+        {
+          "title": "Username",
+          "type": "text",
+          "name": "username",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Username for authentication"
+        },
+        {
+          "title": "Password",
+          "type": "password",
+          "name": "password",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": "",
+          "tooltip": "Password for authentication"
+        },
+        {
+          "title": "Group Names",
+          "type": "text",
+          "name": "group_names",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": "BlockedIPs",
+          "tooltip": "Comma-separated list of address group names to check for blocked IPs"
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "groups": [],
+        "error": []
+      },
+      "open": false
+    },
+    {
+      "title": "Get Virtual Router",
+      "operation": "get_vrouter",
+      "description": "Get virtual router information",
+      "category": "investigation",
+      "annotation": "get_vrouter",
+      "parameters": [],
+      "enabled": true,
+      "output_schema": {
+        "vrouter": ""
+      },
+      "open": false
+    },
+    {
+      "title": "检查当前HA状态",
+      "operation": "get_ha_status",
+      "description": "检查当前HA状态, 返回HA状态信息",
+      "category": "investigation",
+      "annotation": "get_ha_status",
+      "parameters": [
+        {
+          "title": "Host",
+          "type": "text",
+          "name": "host",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "type": "text",
+          "name": "username",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "type": "password",
+          "name": "password",
+          "required": true,
+          "visible": true,
+          "editable": true,
+          "value": ""
+        }
+      ],
+      "enabled": true,
+      "output_schema": {
+        "status": ""
+      },
+      "open": false
+    }
+  ],
+  "category": [
+    "firewall"
+  ],
+  "active": true,
+  "cs_compatible": true,
+  "system": false,
+  "playbook_collections": [],
+  "icon_small": "",
+  "icon_large": "",
+  "help_online": "",
+  "vendor_version": null,
+  "cs_approved": false
+}

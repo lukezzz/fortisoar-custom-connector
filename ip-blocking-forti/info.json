@@ -1,0 +1,299 @@
+{
+  "name": "ip-blocking-forti",
+  "label": "FortiGate IP Blocking",
+  "description": "FortiGate IP Blocking connector for blocking and unblocking IP addresses using FortiGate firewall",
+  "publisher": "Hftech",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "version": "1.0.0",
+  "category": "firewall",
+  "icon_small_name": "Fortinet_small.png",
+  "icon_large_name": "Fortinet_medium.png",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "title": "Host",
+        "name": "url",
+        "type": "text",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "tooltip": "ip or name (fqdn) can include a port like 10.40.40.40:8443"
+      },
+      {
+        "title": "Verify SSL",
+        "name": "verify_ssl",
+        "type": "checkbox",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "value": true,
+        "description": "Specifies whether the SSL certificate for the server is to be verified or not. By default, this option is set as True."
+      },
+      {
+        "title": "VDOM",
+        "name": "vdom",
+        "type": "text",
+        "visible": true,
+        "editable": true,
+        "required": false,
+        "tooltip": "Provide VDOM CSV or List format, if VDOM mode enabled. These used for actions related to IP addresses",
+        "description": "VDOMs, in the CSV or List format, if the VDOM mode is enabled.",
+        "value": "root"
+      }
+    ]
+  },
+  "operations": [
+    {
+      "title": "检查当前HA状态",
+      "operation": "get_ha_status",
+      "description": "检查当前HA状态, 返回HA状态信息",
+      "category": "containment",
+      "annotation": "get_ha_status",
+      "output_schema": {
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "获取已封锁的IP",
+      "operation": "get_blocked_ip",
+      "description": "获取已被封锁的IP地址列表",
+      "category": "containment",
+      "annotation": "get_blocked_ip",
+      "output_schema": {
+        "blocked_ips": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "IP Group Name",
+          "name": "ip_group_name",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "",
+          "description": "指定IP组名称，如果不提供则获取所有地址对象"
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "封锁IP地址",
+      "operation": "block_ip",
+      "description": "将IP地址添加到封锁组中",
+      "category": "containment",
+      "annotation": "block_ip",
+      "output_schema": {
+        "already_blocked": [],
+        "newly_blocked": [],
+        "error_with_block": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "IP Group Name",
+          "name": "ip_group_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "",
+          "description": "要添加IP地址的组名称"
+        },
+        {
+          "title": "IP Address",
+          "name": "ip_address",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "",
+          "description": "要封锁的IP地址"
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "解封IP地址",
+      "operation": "unblock_ip",
+      "description": "从封锁组中移除IP地址",
+      "category": "containment",
+      "annotation": "unblock_ip",
+      "output_schema": {
+        "not_blocked": [],
+        "unblocked": [],
+        "error_with_unblock": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "IP Group Name",
+          "name": "ip_group_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "",
+          "description": "要从中移除IP地址的组名称"
+        },
+        {
+          "title": "IP Address",
+          "name": "ip_address",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "",
+          "description": "要解封的IP地址"
+        },
+        {
+          "title": "VDOM",
+          "name": "vdom",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    }
+  ]
+}
