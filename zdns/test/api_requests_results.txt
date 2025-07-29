@@ -1,0 +1,130 @@
+DZone: fqb-gm.fuguo, GPool: fqb-gm_fuguo_pool
+GMember Responses: Error creating gmember ZR_DC_10.210.12.201: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)
+GPool Response: Error creating gpool fqb-gm_fuguo_pool: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)
+DZone Response: Error creating dzone fqb-gm.fuguo: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: Error creating gmember ZR_DC_10.210.12.201: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)
+GPool Response: Error creating gpool mauth01_fuguo_pool: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)
+DZone Response: Error creating dzone mauth01.fuguo: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)
+==================================================
+DZone: mauth02.fuguo, GPool: mauth02_fuguo_pool
+GMember Responses: Error creating gmember ZR_DC_10.210.12.201: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)
+GPool Response: Error creating gpool mauth02_fuguo_pool: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)
+DZone Response: Error creating dzone mauth02.fuguo: [SSL: WRONG_VERSION_NUMBER] wrong version number (_ssl.c:1007)
+==================================================
+DZone: fqb-gm.fuguo, GPool: fqb-gm_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: mauth02.fuguo, GPool: mauth02_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: fqb-gm.fuguo, GPool: fqb-gm_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: mauth02.fuguo, GPool: mauth02_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: fqb-gm.fuguo, GPool: fqb-gm_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: mauth02.fuguo, GPool: mauth02_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: fqb-gm.fuguo, GPool: fqb-gm_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: mauth02.fuguo, GPool: mauth02_fuguo_pool
+GMember Responses: {"detail":"Unauthorized"}
+GPool Response: {"detail":"Unauthorized"}
+DZone Response: {"detail":"Unauthorized"}
+==================================================
+DZone: fqb-gm.fuguo, GPool: fqb-gm_fuguo_pool
+GMember Responses: {"id":"gmember_ZR_DC_10.210.12.201_ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ip":"10.210.12.201","port":80,"dc_name":"ZR_DC","enable":"yes","status":"success","message":"GMember ZR_DC_10.210.12.201 created successfully in DC ZR_DC"}
+GPool Response: {"id":"gpool_fqb-gm_fuguo_pool","name":"fqb-gm_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.220","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool fqb-gm_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_fqb-gm_fuguo_","name":"fqb-gm","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"fqb-gm_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone fqb-gm created successfully for domain fuguo."}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: {"id":"gmember_ZR_DC_10.210.12.201_ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ip":"10.210.12.201","port":80,"dc_name":"ZR_DC","enable":"yes","status":"success","message":"GMember ZR_DC_10.210.12.201 created successfully in DC ZR_DC"}
+GPool Response: {"id":"gpool_mauth01_fuguo_pool","name":"mauth01_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.221","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool mauth01_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_mauth01_fuguo_","name":"mauth01","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"mauth01_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone mauth01 created successfully for domain fuguo."}
+==================================================
+DZone: mauth02.fuguo, GPool: mauth02_fuguo_pool
+GMember Responses: {"id":"gmember_ZR_DC_10.210.12.201_ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ip":"10.210.12.201","port":80,"dc_name":"ZR_DC","enable":"yes","status":"success","message":"GMember ZR_DC_10.210.12.201 created successfully in DC ZR_DC"}
+GPool Response: {"id":"gpool_mauth02_fuguo_pool","name":"mauth02_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.222","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool mauth02_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_mauth02_fuguo_","name":"mauth02","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"mauth02_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone mauth02 created successfully for domain fuguo."}
+==================================================
+DZone: fqb-gm.fuguo, GPool: fqb-gm_fuguo_pool
+GMember Responses: {"id":"gmember_ZR_DC_10.210.12.201_ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ip":"10.210.12.201","port":80,"dc_name":"ZR_DC","enable":"yes","status":"success","message":"GMember ZR_DC_10.210.12.201 created successfully in DC ZR_DC"}
+GPool Response: {"id":"gpool_fqb-gm_fuguo_pool","name":"fqb-gm_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.220","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool fqb-gm_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_fqb-gm_fuguo_","name":"fqb-gm","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"fqb-gm_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone fqb-gm created successfully for domain fuguo."}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: {"id":"gmember_ZR_DC_10.210.12.201_ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ip":"10.210.12.201","port":80,"dc_name":"ZR_DC","enable":"yes","status":"success","message":"GMember ZR_DC_10.210.12.201 created successfully in DC ZR_DC"}
+GPool Response: {"id":"gpool_mauth01_fuguo_pool","name":"mauth01_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.221","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool mauth01_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_mauth01_fuguo_","name":"mauth01","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"mauth01_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone mauth01 created successfully for domain fuguo."}
+==================================================
+DZone: mauth02.fuguo, GPool: mauth02_fuguo_pool
+GMember Responses: {"id":"gmember_ZR_DC_10.210.12.201_ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ip":"10.210.12.201","port":80,"dc_name":"ZR_DC","enable":"yes","status":"success","message":"GMember ZR_DC_10.210.12.201 created successfully in DC ZR_DC"}
+GPool Response: {"id":"gpool_mauth02_fuguo_pool","name":"mauth02_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.222","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool mauth02_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_mauth02_fuguo_","name":"mauth02","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"mauth02_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone mauth02 created successfully for domain fuguo."}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: {"id":"gmember_ZR_DC_10.210.12.201_ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ip":"10.210.12.201","port":80,"dc_name":"ZR_DC","enable":"yes","status":"success","message":"GMember ZR_DC_10.210.12.201 created successfully in DC ZR_DC"}
+GPool Response: {"id":"gpool_mauth01_fuguo_pool","name":"mauth01_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.221","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool mauth01_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_mauth01_fuguo_","name":"mauth01","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"mauth01_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone mauth01 created successfully for domain fuguo."}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: {"id":"gmember_ZR_DC_10.210.12.201_ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ip":"10.210.12.201","port":80,"dc_name":"ZR_DC","enable":"yes","status":"success","message":"GMember ZR_DC_10.210.12.201 created successfully in DC ZR_DC"}
+GPool Response: {"id":"gpool_mauth01_fuguo_pool","name":"mauth01_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.221","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool mauth01_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_mauth01_fuguo_","name":"mauth01","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"mauth01_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone mauth01 created successfully for domain fuguo."}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: Internal Server Error
+GPool Response: {"id":"gpool_mauth01_fuguo_pool","name":"mauth01_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.221","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool mauth01_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_mauth01_fuguo_","name":"mauth01","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"mauth01_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone mauth01 created successfully for domain fuguo."}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: Internal Server Error
+GPool Response: {"id":"gpool_mauth01_fuguo_pool","name":"mauth01_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.221","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool mauth01_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_mauth01_fuguo_","name":"mauth01","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"mauth01_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone mauth01 created successfully for domain fuguo."}
+==================================================
+DZone: mauth01.fuguo, GPool: mauth01_fuguo_pool
+GMember Responses: {"id":"gmember_ZR_DC_10.210.12.201_ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ip":"10.210.12.201","port":80,"dc_name":"ZR_DC","enable":"yes","status":"success","message":"GMember ZR_DC_10.210.12.201 created successfully in DC ZR_DC"}
+GPool Response: {"id":"gpool_mauth01_fuguo_pool","name":"mauth01_fuguo_pool","type":"A","ttl":"10","gmember_count":2,"gmember_list":[{"dc_name":"GDS_DC","gmember_name":"GDS_DC_10.10.12.221","ratio":1,"enable":"yes"},{"dc_name":"ZR_DC","gmember_name":"ZR_DC_10.210.12.201","ratio":1,"enable":"yes"}],"status":"success","message":"GPool mauth01_fuguo_pool created successfully with 2 members"}
+DZone Response: {"id":"dzone_mauth01_fuguo_","name":"mauth01","domain":"fuguo.","type":"A","algorithm":"rr","gpool_count":1,"gpool_list":[{"id":"_id6","gpool_name":"mauth01_fuguo_pool","ratio":"1"}],"enable":"yes","status":"success","message":"DZone mauth01 created successfully for domain fuguo."}
+==================================================

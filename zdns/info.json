@@ -122,6 +122,55 @@
           "description": "domain_name"
         }
       ]
+    },
+    {
+      "operation": "dns_proximity_config",
+      "title": "DNS Proximity Config",
+      "annotation": "dns_proximity_config",
+      "description": "Process DNS proximity config data and create gmembers, gpool, and dzone",
+      "category": "investigation",
+      "is_config_required": true,
+      "visible": true,
+      "enabled": true,
+      "output_schema": {},
+      "parameters": [
+        {
+          "name": "username",
+          "title": "Username",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "ZDNS username"
+        },
+        {
+          "name": "password",
+          "title": "Password",
+          "type": "password",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "ZDNS password"
+        },
+        {
+          "name": "dzone_name",
+          "title": "Domain Zone Name",
+          "type": "text",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Domain zone name (e.g., fqb-gm.fuguo)"
+        },
+        {
+          "name": "gmembers",
+          "title": "Gmembers",
+          "type": "json",
+          "editable": true,
+          "visible": true,
+          "required": true,
+          "description": "Array of gmember objects with dc_name, ip, and port fields"
+        }
+      ]
     }
   ]
 }
