@@ -1,0 +1,423 @@
+get slb_pool detail: /adc/v3.0/slb/pool?name=lulu-uar-pool
+{
+    "data": {
+        "slb_pool": [
+            {
+                "community": "",
+                "cpu_mem_weight": "",
+                "elastic_enable": "off",
+                "elastic_limit": "",
+                "elastic_minactive": "",
+                "elastic_time": "",
+                "elastic_type": "",
+                "healthcheck": [
+                    {
+                        "healthcheck_name": "http",
+                        "healthcheck_uuid": "e196c786-fa65-42d0-8256-7e87a812f31d"
+                    }
+                ],
+                "healthcheck_relation": "all",
+                "method": "rr",
+                "name": "lulu-uar-pool",
+                "pg_activations": "1",
+                "pg_enable": "off",
+                "pool_desc": "",
+                "silent_period": "10",
+                "slb_pool_states": {
+                    "connections": "0",
+                    "cpu_usage": "n/a",
+                    "flowin": "0",
+                    "flowout": "0",
+                    "mem_usage": "n/a",
+                    "new_connections": "0",
+                    "requests": "0",
+                    "uuid": "06460ad9-ae8f-4b8c-92bb-a992b4591a58"
+                },
+                "slb_rserver": [
+                    {
+                        "address": "172.16.60.126:6181",
+                        "alive_state": "up",
+                        "bandwidth": "0",
+                        "community": "",
+                        "conn_pool_size": "1024",
+                        "elastic_enable": "off",
+                        "elastic_virtualmachine": "",
+                        "enable": "on",
+                        "fqdn": "",
+                        "fqdnname": "",
+                        "healthcheck": [
+                            {
+                                "healthcheck_name": "http",
+                                "healthcheck_uuid": "e196c786-fa65-42d0-8256-7e87a812f31d"
+                            }
+                        ],
+                        "healthcheck_relation": "all",
+                        "maxconn": "5",
+                        "maxreq": "5",
+                        "online_rate": "",
+                        "pg_priority": "1",
+                        "pg_state": "active",
+                        "slb_node_name": "mac-m4",
+                        "slb_node_uuid": "0d61d431-fde4-443e-81e7-f03c7e93218a",
+                        "slb_pool_name": "lulu-uar-pool",
+                        "slb_pool_uuid": "fd0fe10d-f999-4418-802b-acab870afb19",
+                        "slb_rserver_states": {
+                            "connections": "0",
+                            "cpu_usage": "n/a",
+                            "flowin": "0",
+                            "flowout": "0",
+                            "mem_usage": "n/a",
+                            "new_connections": "0",
+                            "requests": "0",
+                            "uuid": "20e06469-9ba4-4039-ab7c-f68aac8b9dae"
+                        },
+                        "state": "up",
+                        "uuid": "aa45995b-550b-4549-8bc5-50b5b476abf7",
+                        "weight": "10"
+                    },
+                    {
+                        "address": "172.16.81.30:22443",
+                        "alive_state": "up",
+                        "bandwidth": "0",
+                        "community": "",
+                        "conn_pool_size": "1024",
+                        "elastic_enable": "off",
+                        "elastic_virtualmachine": "",
+                        "enable": "on",
+                        "fqdn": "",
+                        "fqdnname": "",
+                        "healthcheck": [
+                            {
+                                "healthcheck_name": "https",
+                                "healthcheck_uuid": "dddf5527-c0d8-4b21-ad98-27f33df22f2d"
+                            }
+                        ],
+                        "healthcheck_relation": "all",
+                        "maxconn": "0",
+                        "maxreq": "0",
+                        "online_rate": "",
+                        "pg_priority": "10",
+                        "pg_state": "active",
+                        "slb_node_name": "lulu-server",
+                        "slb_node_uuid": "447d0fbd-c807-410a-9afe-40c59a2918eb",
+                        "slb_pool_name": "lulu-uar-pool",
+                        "slb_pool_uuid": "fd0fe10d-f999-4418-802b-acab870afb19",
+                        "slb_rserver_states": {
+                            "connections": "0",
+                            "cpu_usage": "n/a",
+                            "flowin": "0",
+                            "flowout": "0",
+                            "mem_usage": "n/a",
+                            "new_connections": "0",
+                            "requests": "0",
+                            "uuid": "7cbf80af-95a7-4938-9296-eb0789430d77"
+                        },
+                        "state": "up",
+                        "uuid": "ad6cf079-5e19-4a4e-b731-6c0eeb274b91",
+                        "weight": "10"
+                    }
+                ],
+                "snmp_monitor_enable": "off",
+                "uuid": "fd0fe10d-f999-4418-802b-acab870afb19",
+                "warmup_enable": "off",
+                "warmup_increase": "100",
+                "warmup_period": "10"
+            }
+        ],
+        "total_rows": "1"
+    },
+    "res": {
+        "code": "1105-0000",
+        "msg": "success",
+        "status": "success"
+    }
+}
+
+get slb_pool list: /adc/v3.0/slb/pool
+{
+    "data": {
+        "slb_pool": [
+            {
+                "community": "",
+                "cpu_mem_weight": "",
+                "elastic_enable": "off",
+                "elastic_limit": "",
+                "elastic_minactive": "",
+                "elastic_time": "",
+                "elastic_type": "",
+                "healthcheck": [
+                    {
+                        "healthcheck_name": "http",
+                        "healthcheck_uuid": "e196c786-fa65-42d0-8256-7e87a812f31d"
+                    }
+                ],
+                "healthcheck_relation": "all",
+                "method": "rr",
+                "name": "lulu-uar-pool",
+                "pg_activations": "1",
+                "pg_enable": "off",
+                "pool_desc": "",
+                "silent_period": "10",
+                "slb_pool_states": {
+                    "connections": "0",
+                    "cpu_usage": "n/a",
+                    "flowin": "0",
+                    "flowout": "0",
+                    "mem_usage": "n/a",
+                    "new_connections": "0",
+                    "requests": "0",
+                    "uuid": "06460ad9-ae8f-4b8c-92bb-a992b4591a58"
+                },
+                "slb_rserver": [
+                    {
+                        "address": "172.16.60.126:6181",
+                        "alive_state": "up",
+                        "bandwidth": "0",
+                        "community": "",
+                        "conn_pool_size": "1024",
+                        "elastic_enable": "off",
+                        "elastic_virtualmachine": "",
+                        "enable": "on",
+                        "fqdn": "",
+                        "fqdnname": "",
+                        "healthcheck": [
+                            {
+                                "healthcheck_name": "http",
+                                "healthcheck_uuid": "e196c786-fa65-42d0-8256-7e87a812f31d"
+                            }
+                        ],
+                        "healthcheck_relation": "all",
+                        "maxconn": "5",
+                        "maxreq": "5",
+                        "online_rate": "",
+                        "pg_priority": "1",
+                        "pg_state": "active",
+                        "slb_node_name": "mac-m4",
+                        "slb_node_uuid": "0d61d431-fde4-443e-81e7-f03c7e93218a",
+                        "slb_pool_name": "lulu-uar-pool",
+                        "slb_pool_uuid": "fd0fe10d-f999-4418-802b-acab870afb19",
+                        "slb_rserver_states": {
+                            "connections": "0",
+                            "cpu_usage": "n/a",
+                            "flowin": "0",
+                            "flowout": "0",
+                            "mem_usage": "n/a",
+                            "new_connections": "0",
+                            "requests": "0",
+                            "uuid": "20e06469-9ba4-4039-ab7c-f68aac8b9dae"
+                        },
+                        "state": "up",
+                        "uuid": "aa45995b-550b-4549-8bc5-50b5b476abf7",
+                        "weight": "10"
+                    },
+                    {
+                        "address": "172.16.81.30:22443",
+                        "alive_state": "up",
+                        "bandwidth": "0",
+                        "community": "",
+                        "conn_pool_size": "1024",
+                        "elastic_enable": "off",
+                        "elastic_virtualmachine": "",
+                        "enable": "on",
+                        "fqdn": "",
+                        "fqdnname": "",
+                        "healthcheck": [
+                            {
+                                "healthcheck_name": "https",
+                                "healthcheck_uuid": "dddf5527-c0d8-4b21-ad98-27f33df22f2d"
+                            }
+                        ],
+                        "healthcheck_relation": "all",
+                        "maxconn": "0",
+                        "maxreq": "0",
+                        "online_rate": "",
+                        "pg_priority": "10",
+                        "pg_state": "active",
+                        "slb_node_name": "lulu-server",
+                        "slb_node_uuid": "447d0fbd-c807-410a-9afe-40c59a2918eb",
+                        "slb_pool_name": "lulu-uar-pool",
+                        "slb_pool_uuid": "fd0fe10d-f999-4418-802b-acab870afb19",
+                        "slb_rserver_states": {
+                            "connections": "0",
+                            "cpu_usage": "n/a",
+                            "flowin": "0",
+                            "flowout": "0",
+                            "mem_usage": "n/a",
+                            "new_connections": "0",
+                            "requests": "0",
+                            "uuid": "7cbf80af-95a7-4938-9296-eb0789430d77"
+                        },
+                        "state": "up",
+                        "uuid": "ad6cf079-5e19-4a4e-b731-6c0eeb274b91",
+                        "weight": "10"
+                    }
+                ],
+                "snmp_monitor_enable": "off",
+                "uuid": "fd0fe10d-f999-4418-802b-acab870afb19",
+                "warmup_enable": "off",
+                "warmup_increase": "100",
+                "warmup_period": "10"
+            }
+        ]
+    },
+    "res": {
+        "code": "1105-0000",
+        "msg": "success",
+        "status": "success"
+    }
+}
+
+
+create slb node: /adc/v3.0/slb/node
+post payload example:
+{
+"name":"test"
+,
+"node_type":"ip"
+,
+"ip":"1.1.1.2"
+,
+"maxconn":"11"
+,
+"maxcps":"12"
+,
+"healthcheck_relation":"all"
+,
+"enable":"on"
+}
+
+create slb pool: /adc/v3.0/slb/pool
+{
+    "name": "name",
+    "method": "wrr",
+    "healthcheck": [
+        {
+            "healthcheck_uuid": "xxx"
+        },
+        {
+            "healthcheck_uuid": "xxx"
+        }
+    ],
+    "healthcheck_relation": "all",
+    "elastic_minactive": "1",
+    "elastic_time": "180",
+    "elastic_type": "flow",
+    "elastic_limit": "50-100",
+    "elastic_enable": "on",
+    "warmup_period": "10",
+    "warmup_increase": "100",
+    "warmup_enable": "on",
+    "silent_period": "10"
+}
+
+get healthcheck list: /adc/v3.0/slb/healthcheck
+{
+    "data": {
+        "healthcheck": [
+            {
+"interval":"5"
+,
+"name":"tcp"
+,
+"retry":"3"
+,
+"timeout":"5"
+,
+"type":"tcp"
+,
+"uuid":"a397a255-53be-41fc-996b-521413e9e22d"
+},
+        ]
+    },
+    "res": {
+        "code": "1105-0000",
+        "msg": "success",
+        "status": "success"
+    }
+}
+
+
+get vserver list: /adc/v3.0/slb/vserver
+{
+    "data": {
+        "slb_vserver": [
+            {
+                "name": "lulu-uar-vs",
+                "type": "http",
+                "port": "80",
+                "protocol": "http",
+                "slb_pool_name": "lulu-uar-pool",
+                "slb_pool_uuid": "fd0fe10d-f999-4418-802b-acab870afb19",
+                "uuid": "12345678-1234-1234-1234-123456789012"
+            }
+        ]
+    },
+    "res": {
+        "code": "1105-0000",
+        "msg": "success",
+        "status": "success"
+    }
+}
+
+create node :/adc/v3.0/slb/node
+
+{
+"name":"test"
+,
+"node_type":"ip"
+,
+"ip":"1.1.1.2"
+,
+"maxconn":"11"
+,
+"maxcps":"12"
+,
+"healthcheck_relation":"all"
+,
+"enable":"on"
+}
+
+add node to pool: /adc/v3.0/slb/pool/{pool_uuid}/rserver
+
+{
+  "weight": "10",
+  "maxconn": "0",
+  "maxreq": "0",
+  "bandwidth": "0",
+  "slb_node_uuid": "c57a7d42-612c-4cbb-a615-ec9a63d46340",
+  "healthcheck": [],
+  "healthcheck_relation": "all",
+  "elastic_enable": "off",
+  "elastic_virtualmachine": "",
+  "enable": "on",
+  "conn_pool_size": "1024",
+  "pg_priority": "0",
+  "address": "c57a7d42-612c-4cbb-a615-ec9a63d46340:111"
+}
+
+
+create vserver: /adc/v3.0/slb/vserver
+
+{
+  "ip_type": "ipv4",
+  "protocol": "fast-tcp",
+  "mode": "nat",
+  "enable": "on",
+  "ssl_profile_uuid": "",
+  "web_security_profile_uuid": "",
+  "persistence_profile_uuid": "90e940c1-7d91-40b2-a269-ca7587dae6da",
+  "fallback_persistence_profile_uuid": "",
+  "fallback_persistence_profile_name": "",
+  "slb_pool_uuid": "fd0fe10d-f999-4418-802b-acab870afb19",
+  "slb_backup_pool_uuid": "",
+  "dynamic_routing": "",
+  "tcp_udp_profile_uuid": "58a4e087-8c97-4aee-a682-f7eb0b3d1c35",
+  "nat_name": [
+    "default"
+  ],
+  "name": "test1",
+  "vs_desc": "",
+  "vlan_traffic_type": "0",
+  "vlans": [],
+  "vip": "172.16.60.181:20444"
+}

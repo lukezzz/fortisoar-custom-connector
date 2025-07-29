@@ -1,0 +1,961 @@
+{
+  "name": "yunke-lb",
+  "label": "云科负载均衡",
+  "description": "",
+  "publisher": "Hftech",
+  "cs_approved": false,
+  "cs_compatible": true,
+  "version": "1.0.0",
+  "category": "firewall",
+  "icon_small_name": "small_yunke_logo.png",
+  "icon_large_name": "large_yunke_logo.png",
+  "help_online": "",
+  "configuration": {
+    "fields": [
+      {
+        "title": "Server URL / Hostname",
+        "name": "server_url",
+        "type": "text",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "value": ""
+      },
+      {
+        "title": "Verify SSL",
+        "name": "verify_ssl",
+        "type": "checkbox",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "value": true
+      },
+      {
+        "title": "VS Destination Subnet",
+        "name": "vs_dest_subnet",
+        "type": "text",
+        "required": true,
+        "editable": true,
+        "visible": true,
+        "value": ""
+      },
+      {
+        "title": "HA Group Name",
+        "name": "group_name",
+        "type": "text",
+        "required": false,
+        "editable": true,
+        "visible": true,
+        "value": ""
+      }
+    ]
+  },
+  "operations": [
+    {
+      "title": "Get SLB Pool List",
+      "operation": "get_slb_pool_list",
+      "description": "Get list of SLB pools",
+      "category": "investigation",
+      "annotation": "get_slb_pool_list",
+      "output_schema": {
+        "pools": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Get SLB Pool Detail",
+      "operation": "get_slb_pool_detail",
+      "description": "Get detailed information about a specific SLB pool",
+      "category": "investigation",
+      "annotation": "get_slb_pool_detail",
+      "output_schema": {
+        "pool": {}
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Pool Name",
+          "name": "pool_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Create SLB Pool",
+      "operation": "create_slb_pool",
+      "description": "Create a new SLB pool with members",
+      "category": "containment",
+      "annotation": "create_slb_pool",
+      "output_schema": {
+        "status": "",
+        "message": "",
+        "pool_name": "",
+        "method": "",
+        "created_members": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Pool Name",
+          "name": "pool_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Method",
+          "name": "method",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "rr",
+          "options": [
+            "rr",
+            "wrr",
+            "lc",
+            "wlc",
+            "sh",
+            "url_hash"
+          ]
+        },
+        {
+          "title": "Pool Description",
+          "name": "pool_desc",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Healthcheck UUIDs",
+          "name": "healthcheck_uuids",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": []
+        },
+        {
+          "title": "Healthcheck Relation",
+          "name": "healthcheck_relation",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "all",
+          "options": [
+            "all",
+            "any"
+          ]
+        },
+        {
+          "title": "Silent Period",
+          "name": "silent_period",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "10"
+        },
+        {
+          "title": "Pool Members",
+          "name": "pool_members",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": [],
+          "description": "List of pool members with address and port. Format: [{\"address\": \"172.16.66.213\", \"port\": 2001}, {\"address\": \"172.16.66.214\", \"port\": 2001}]"
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Create SLB Node",
+      "operation": "create_slb_node",
+      "description": "Create a new SLB node",
+      "category": "containment",
+      "annotation": "create_slb_node",
+      "output_schema": {
+        "status": "",
+        "message": "",
+        "node_name": "",
+        "node_ip": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Node Name",
+          "name": "name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Node IP",
+          "name": "ip",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Node Type",
+          "name": "node_type",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "ip",
+          "options": [
+            "ip",
+            "fqdn"
+          ]
+        },
+        {
+          "title": "Max Connections",
+          "name": "maxconn",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "0"
+        },
+        {
+          "title": "Max CPS",
+          "name": "maxcps",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "0"
+        },
+        {
+          "title": "Enable",
+          "name": "enable",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "on",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Get Node List",
+      "operation": "get_node_list",
+      "description": "Get list of all SLB nodes",
+      "category": "investigation",
+      "annotation": "get_node_list",
+      "output_schema": {
+        "nodes": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Get Node Detail",
+      "operation": "get_node_detail",
+      "description": "Get detailed information about a specific SLB node",
+      "category": "investigation",
+      "annotation": "get_node_detail",
+      "output_schema": {
+        "node": {}
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Node Name",
+          "name": "node_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Get Healthcheck List",
+      "operation": "get_healthcheck_list",
+      "description": "Get list of available health checks",
+      "category": "investigation",
+      "annotation": "get_healthcheck_list",
+      "output_schema": {
+        "healthchecks": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Get Virtual Server List",
+      "operation": "get_vserver_list",
+      "description": "Get list of virtual servers",
+      "category": "investigation",
+      "annotation": "get_vserver_list",
+      "output_schema": {
+        "vservers": []
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Create Virtual Server",
+      "operation": "create_vserver",
+      "description": "Create a new virtual server",
+      "category": "containment",
+      "annotation": "create_vserver",
+      "output_schema": {
+        "status": "",
+        "message": "",
+        "vs_name": "",
+        "vip": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Virtual Server Name",
+          "name": "vs_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "VIP (IP:Port)",
+          "name": "vip",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "IP Type",
+          "name": "ip_type",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "ipv4",
+          "options": [
+            "ipv4",
+            "ipv6"
+          ]
+        },
+        {
+          "title": "Protocol",
+          "name": "protocol",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "smart-http",
+          "options": [
+            "smart-http",
+            "fast-tcp"
+          ]
+        },
+        {
+          "title": "Mode",
+          "name": "mode",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "nat",
+          "options": [
+            "nat",
+            "dr",
+            "tun"
+          ]
+        },
+        {
+          "title": "SLB Pool UUID",
+          "name": "slb_pool_uuid",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Virtual Server Description",
+          "name": "vs_desc",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "SSL Profile UUID",
+          "name": "ssl_profile_uuid",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Web Security Profile UUID",
+          "name": "web_security_profile_uuid",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Persistence Profile UUID",
+          "name": "persistence_profile_uuid",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "HTTP Profile UUID",
+          "name": "http_profile_uuid",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "TCP/UDP Profile UUID",
+          "name": "tcp_udp_profile_uuid",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Backup Pool UUID",
+          "name": "slb_backup_pool_uuid",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Enable",
+          "name": "enable",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "on",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Add Pool Member",
+      "operation": "add_pool_member",
+      "description": "Add a server to an existing pool by creating a node first, then adding it to the pool",
+      "category": "containment",
+      "annotation": "add_pool_member",
+      "output_schema": {
+        "status": "",
+        "message": "",
+        "pool_name": "",
+        "member_address": "",
+        "node_name": "",
+        "node_uuid": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Pool Name",
+          "name": "pool_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Server Address (IP:Port)",
+          "name": "server_address",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": "",
+          "description": "Server address in format 'IP:PORT' (e.g., '172.16.60.126:6181')"
+        },
+        {
+          "title": "Node Name",
+          "name": "node_name",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Weight",
+          "name": "weight",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "10"
+        },
+        {
+          "title": "Max Connections",
+          "name": "maxconn",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "0"
+        },
+        {
+          "title": "Max Requests",
+          "name": "maxreq",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "0"
+        },
+        {
+          "title": "Bandwidth",
+          "name": "bandwidth",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "0"
+        },
+        {
+          "title": "Connection Pool Size",
+          "name": "conn_pool_size",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "1024"
+        },
+        {
+          "title": "Priority Group Priority",
+          "name": "pg_priority",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "0"
+        },
+        {
+          "title": "Elastic Enable",
+          "name": "elastic_enable",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "off",
+          "options": [
+            "on",
+            "off"
+          ]
+        },
+        {
+          "title": "Elastic Virtual Machine",
+          "name": "elastic_virtualmachine",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Healthcheck UUIDs",
+          "name": "healthcheck_uuids",
+          "type": "json",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": [],
+          "description": "Array of healthcheck UUIDs to associate with this member"
+        },
+        {
+          "title": "Healthcheck Relation",
+          "name": "healthcheck_relation",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "all",
+          "options": [
+            "all",
+            "any"
+          ]
+        },
+        {
+          "title": "Enable",
+          "name": "enable",
+          "type": "select",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "on",
+          "options": [
+            "on",
+            "off"
+          ]
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Get New VS IP",
+      "operation": "get_new_vs_ip",
+      "description": "Get a new free virtual server IP address from the configured subnet range",
+      "category": "investigation",
+      "annotation": "get_new_vs_ip",
+      "output_schema": {
+        "new_ip": "",
+        "subnet_range": "",
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "VS Destination Subnet",
+          "name": "vs_dest_subnet",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "",
+          "description": "Subnet range in format 'start_ip-end_ip' (e.g., '1.1.1.10-1.1.1.20'). If not provided, will use the configured value."
+        }
+      ],
+      "enabled": true
+    }
+  ]
+}
