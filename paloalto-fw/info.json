@@ -476,6 +476,16 @@
           "visible": true,
           "editable": true,
           "value": ""
+        },
+        {
+          "title": "Schedule",
+          "description": "",
+          "type": "integer",
+          "name": "schedule",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": ""
         }
       ],
       "output_schema": {

@@ -1,4 +1,5 @@
 from ipaddress import ip_address, ip_network
+from datetime import datetime, timedelta, timezone
 from connectors.core.connector import get_logger, ConnectorError, api_health_check
 
 from .utils import addr2dec
@@ -26,6 +27,7 @@ class Endpoint:
     service = "servicebook_service"
     policy = "policy_rule"
     zone = "api/zone"
+    schedule = "schedule_schedule_list"
 
 
 #
@@ -227,10 +229,75 @@ def create_service(config, params):
         raise ConnectorError("Error: {0}".format(err))
 
 
+def create_schedule(client, schedule_days):
+    """
+    Create a schedule for temporary policy
+
+    Args:
+        client: HillStoneFWClient instance
+        policy_name: Name of the policy
+        schedule_days: Number of days the policy should be active
+
+    Returns:
+        str: Schedule name
+    """
+    try:
+        # Get current time in Beijing timezone (UTC+8)
+        beijing_tz = timezone(timedelta(hours=8))
+        current_time = datetime.now(beijing_tz)
+
+        # Calculate end time (current day + schedule_days, always at 20:00 Beijing time)
+        end_time = current_time + timedelta(days=schedule_days)
+        end_time = end_time.replace(hour=20, minute=0, second=0, microsecond=0)
+
+        # Format end date as YYYYMMDD
+        end_date_str = end_time.strftime("%Y%m%d")
+        schedule_name = f"fortisoar_sch_{end_date_str}"
+
+        schedule_data = [
+            {
+                "name": schedule_name,
+                "type": "0",
+                "schedule_periodic": [],
+                "schedule_absolute": {
+                    "start_time_mask": 1,
+                    "start_year": current_time.year,
+                    "start_month": current_time.month,
+                    "start_day": current_time.day,
+                    "start_hour": current_time.hour,
+                    "start_minutes": current_time.minute,
+                    "start_second": current_time.second,
+                    "end_time_mask": 1,
+                    "end_year": end_time.year,
+                    "end_month": end_time.month,
+                    "end_day": end_time.day,
+                    "end_hour": end_time.hour,
+                    "end_minutes": end_time.minute,
+                    "end_second": end_time.second,
+                },
+                "schedule_description": {"description": f"created by fortisoar"},
+            }
+        ]
+
+        # Create the schedule
+        res = client.request(
+            "POST", f"{Endpoint.schedule}?isTransaction=1", data=schedule_data
+        )
+        logger.info(f"Schedule created: {schedule_name}")
+        logger.debug(f"Schedule creation response: {res.json()}")
+
+        return schedule_name
+
+    except Exception as err:
+        logger.exception("Error creating schedule: {0}".format(err))
+        raise ConnectorError("Error creating schedule: {0}".format(err))
+
+
 def create_policy(config, params):
     # host = params.get("host")
     # vdom = params.get("vdom") if params.get("vdom") else None
     name = params.get("name")
+    schedule_days = params.get("schedule")  # Number of days for temporary policy
 
     # policy_data = {
     #     "name": params.get("name"),
@@ -281,8 +348,34 @@ def create_policy(config, params):
         config["url"] = params["host"]
         client = HillStoneFWClient(config, params["username"], params["password"])
         client.login()
+
+        # If schedule_days is provided, create a schedule for temporary policy
+        schedule_name = None
+        if schedule_days and isinstance(schedule_days, int) and schedule_days > 0:
+            try:
+                schedule_name = create_schedule(client, schedule_days)
+                # Add schedule to policy data
+                data[0]["schedname"] = [{"name": schedule_name}]
+                logger.info(
+                    f"Policy {name} will use schedule {schedule_name} for {schedule_days} days"
+                )
+            except Exception as schedule_err:
+                logger.warning(
+                    f"Failed to create schedule for policy {name}: {schedule_err}"
+                )
+                # Continue without schedule if schedule creation fails
+
         res = client.request("POST", Endpoint.policy, data=data)
-        return res.json()
+
+        result = res.json()
+        if schedule_days:
+            result["schedule_info"] = {
+                "schedule_name": schedule_name,
+                "schedule_days": schedule_days,
+                "created_with_schedule": schedule_name is not None,
+            }
+
+        return result
     except Exception as err:
         logger.exception("Error: {0}".format(err))
         raise ConnectorError("Error: {0}".format(err))

@@ -3,6 +3,9 @@ from .constants import ADDRESS_TYPE, ADDRESS_GROUP, POLICY_ACTION
 from connectors.core.connector import ConnectorError, get_logger
 from ipaddress import ip_address, ip_network
 from xml.etree import ElementTree
+from datetime import datetime, timedelta, timezone
+import json
+import requests
 
 
 logger = get_logger("paloalto-firewall")
@@ -238,6 +241,60 @@ def create_service(config, params):
         raise ConnectorError(str(err))
 
 
+def create_schedule(config, params, days):
+    """
+    Create a schedule object for the given number of days from now
+    """
+    try:
+        pa = PaloAltoCustom(config, params)
+        pa.setupApiKey(params["username"], params["password"])
+
+        beijing_tz = timezone(timedelta(hours=8))
+        current_time = datetime.now(beijing_tz)
+
+        # Calculate schedule dates
+        start_time = current_time
+        end_date = start_time + timedelta(days=days)
+        # Set end time to 20:00 (8:00 PM)
+        end_time = end_date.replace(hour=20, minute=0, second=0, microsecond=0)
+
+        # Format schedule name
+        schedule_name = f"fortisoar_sch_{end_time.strftime('%Y%m%d')}"
+
+        # Format schedule string as YYYY/MM/DD@HH:MM-YYYY/MM/DD@HH:MM
+        schedule_str = f"{start_time.strftime('%Y/%m/%d@%H:%M')}-{end_time.strftime('%Y/%m/%d@%H:%M')}"
+
+        payload = {
+            "entry": {
+                "@name": schedule_name,
+                "schedule-type": {"non-recurring": {"member": [schedule_str]}},
+            }
+        }
+
+        payload = check_payload(payload)
+
+        try:
+            res = pa.make_rest_call(
+                endpoint="/Objects/Schedules",
+                method="POST",
+                data=json.dumps(payload),
+                params={"name": schedule_name},
+            )
+            logger.info(f"Schedule {schedule_name} created successfully")
+            return schedule_name
+        except Exception as err:
+            logger.error("Failed to create schedule, error {0}".format(err))
+            if "Object Not Unique" in str(err):
+                # Schedule already exists, return the name
+                logger.info(f"Schedule {schedule_name} already exists")
+                return schedule_name
+            raise
+
+    except Exception as err:
+        logger.exception(str(err))
+        raise ConnectorError(str(err))
+
+
 def create_security_rule_payload(params):
 
     payload = {
@@ -296,6 +353,10 @@ def create_security_rule_payload(params):
             "group": {"member": params.get("profile_setting").split(",")}
         }
 
+    # Handle schedule parameter
+    if params.get("schedule"):
+        payload["entry"]["schedule"] = params.get("schedule")
+
     if params.get("attributes"):
         payload["entry"].update(params.get("attributes"))
 
@@ -308,6 +369,21 @@ def create_security_rule(config, params):
     try:
         pa = PaloAltoCustom(config, params)
         pa.setupApiKey(params["username"], params["password"])
+
+        # Handle schedule creation if schedule parameter is provided
+        schedule_days = params.get("schedule")
+        if schedule_days and isinstance(schedule_days, int) and schedule_days > 0:
+            try:
+                schedule_name = create_schedule(config, params, schedule_days)
+                # Add the schedule name to params for payload creation
+                params["schedule"] = schedule_name
+                logger.info(
+                    f"Schedule {schedule_name} will be used for the security rule"
+                )
+            except Exception as err:
+                logger.error(f"Failed to create schedule: {err}")
+                # Continue without schedule if creation fails
+                params.pop("schedule", None)
 
         payload = create_security_rule_payload(params)
         try:
@@ -382,6 +458,7 @@ operations = {
     "create_address": create_address,
     "get_address_details": get_address_details,
     "create_service": create_service,
+    "create_schedule": create_schedule,
     "get_zone": get_zone,
     "get_ha_status": get_ha_status,
     "commit_config": commit_config,

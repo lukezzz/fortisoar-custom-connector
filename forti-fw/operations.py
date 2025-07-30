@@ -1,4 +1,6 @@
 from ipaddress import ip_address, ip_network
+from datetime import datetime, timedelta
+import time
 from connectors.core.connector import get_logger, ConnectorError, api_health_check
 from .client.forti_client import FortiGateFWClient
 
@@ -12,6 +14,7 @@ class Endpoint:
     service = "firewall.service/custom"
     policy = "firewall/policy"
     zone = "system/zone"
+    schedule = "firewall.schedule/onetime"
 
 
 def route_lookup(config, params):
@@ -46,10 +49,10 @@ def route_lookup(config, params):
                 path = "system/zone"
                 zone_list = client.get(path)
                 if zone_list.get("results") and len(zone_list["results"]) > 0:
-                    for zone in zone_list['results']:
-                        zone_name = zone['name']
-                        for zone_interface in zone['interface']:
-                            if zone_interface['interface-name'] == intf_name:
+                    for zone in zone_list["results"]:
+                        zone_name = zone["name"]
+                        for zone_interface in zone["interface"]:
+                            if zone_interface["interface-name"] == intf_name:
                                 response["results"]["interface"] = zone_name
 
         client.logout()
@@ -206,9 +209,101 @@ def create_service(config, params):
         raise ConnectorError("Error: {0}".format(err))
 
 
+def create_schedule(client, schedule_days):
+    """
+    Create a one-time schedule for temporary policy
+    Args:
+        client: FortiGate client instance
+        policy_name: Name of the policy to create schedule for
+        schedule_days: Number of days the schedule should be active
+    Returns:
+        schedule_name: Name of the created schedule
+    """
+    # Get current time
+    current_time = datetime.now()
+
+    # Calculate end time (current day + schedule_days at 20:00 Beijing time UTC+8)
+    end_time = current_time + timedelta(days=schedule_days)
+    end_time = end_time.replace(hour=20, minute=0, second=0, microsecond=0)
+
+    # Format end date as YYYYMMDD
+    end_date_str = end_time.strftime("%Y%m%d")
+    schedule_name = f"fortisoar_sch_{end_date_str}"
+
+    # Calculate end time (current day + schedule_days at 20:00 Beijing time UTC+8)
+    end_time = current_time + timedelta(days=schedule_days)
+    end_time = end_time.replace(hour=20, minute=0, second=0, microsecond=0)
+
+    # Convert Beijing time (UTC+8) to UTC for the API
+    # Subtract 8 hours to convert from Beijing time to UTC
+    end_time_utc = end_time - timedelta(hours=8)
+
+    # Format start and end times for FortiGate API
+    start_str = current_time.strftime("00:00 %Y/%m/%d")
+    end_str = end_time.strftime("20:00 %Y/%m/%d")
+
+    # Convert to UTC timestamps
+    start_utc = time.mktime(current_time.timetuple())
+    end_utc = time.mktime(end_time_utc.timetuple())
+
+    schedule_data = {
+        "name": schedule_name,
+        "start": start_str,
+        "start-utc": start_utc,
+        "end": end_str,
+        "end-utc": end_utc,
+        "color": {"value": 0},
+        "expiration-days": schedule_days,
+        "fabric-object": "disable",
+    }
+
+    # Check if schedule already exists
+    url = f"{Endpoint.schedule}/{schedule_name}"
+    check_schedule = client.get(url)
+
+    if check_schedule["http_status"] == 404:
+        logger.info("Creating schedule: %s", schedule_name)
+        client.post(Endpoint.schedule, data=schedule_data)
+    else:
+        logger.info("Schedule %s already exists, updating", schedule_name)
+        client.put(url, data=schedule_data)
+
+    return schedule_name
+
+
 def create_policy(config, params):
     host = params.get("host")
     vdom = params.get("vdom") if params.get("vdom") else None
+
+    # Handle schedule parameter for temporary policies
+    schedule_param = params.get("schedule", "always")
+    schedule_name = None
+    client = None
+
+    if isinstance(schedule_param, int):
+        # If schedule is an integer, it represents days for temporary policy
+        policy_name = params.get("name")
+        if not policy_name:
+            raise ConnectorError(
+                "Policy name is required when creating scheduled policy"
+            )
+
+        try:
+            client = FortiGateFWClient(config, params["username"], params["password"])
+            client.login(host=host, vdom=vdom)
+
+            # Create the schedule first
+            schedule_name = create_schedule(client, schedule_param)
+
+        except Exception as err:
+            logger.exception("Error creating schedule: {0}".format(err))
+            raise ConnectorError("Error creating schedule: {0}".format(err))
+    elif schedule_param == "always":
+        # Use default "always" schedule - no custom schedule needed
+        schedule_name = "always"
+    else:
+        # For any other string value, treat as existing schedule name
+        schedule_name = schedule_param
 
     policy_data = {
         "name": params.get("name"),
@@ -218,14 +313,26 @@ def create_policy(config, params):
         "dstaddr": [{"name": item} for item in params.get("dstaddr")],
         "service": [{"name": item} for item in params.get("service")],
         "action": params.get("action"),
-        "schedule": params.get("schedule"),
         "comments": params.get("comments") if params.get("comments") else "fortisoar",
         "logtraffic": params.get("logtraffic"),
     }
 
+    # Add schedule to policy data
+    if schedule_name == "always":
+        # For "always" schedule, use string format
+        policy_data["schedule"] = "always"
+    elif schedule_name:
+        # For custom schedules, use q_origin_key format
+        policy_data["schedule"] = {"q_origin_key": schedule_name}
+    else:
+        # Fallback to always if no schedule specified
+        policy_data["schedule"] = "always"
+
     try:
-        client = FortiGateFWClient(config, params["username"], params["password"])
-        client.login(host=host, vdom=vdom)
+        if client is None:
+            client = FortiGateFWClient(config, params["username"], params["password"])
+            client.login(host=host, vdom=vdom)
+
         res = client.set(Endpoint.policy, data=policy_data)
         client.logout()
         return res
