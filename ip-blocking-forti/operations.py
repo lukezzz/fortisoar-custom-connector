@@ -259,8 +259,8 @@ def unblock_ip(config, params):
         ]:
             client.logout()
             return {
-                "not_blocked": [ip_address],
-                "unblocked": [],
+                "not_exist": [ip_address],
+                "newly_unblocked": [],
                 "error_with_unblock": [],
             }
 
@@ -277,15 +277,15 @@ def unblock_ip(config, params):
 
         client.logout()
         return {
-            "not_blocked": [],
-            "unblocked": [ip_address],
+            "not_exist": [],
+            "newly_unblocked": [ip_address],
             "error_with_unblock": [],
         }
     except Exception as err:
         logger.exception("Error: {0}".format(err))
         return {
-            "not_blocked": [],
-            "unblocked": [],
+            "not_exist": [],
+            "newly_unblocked": [],
             "error_with_unblock": [ip_address],
         }
 

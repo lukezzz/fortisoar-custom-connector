@@ -241,6 +241,13 @@ def unblock_ip(config, params):
     """
     Unblock IP addresses by removing tags using XML API
     """
+    # Initialize result structure
+    result = {
+        "not_exist": [],
+        "newly_unblocked": [],
+        "error_with_unblock": [],
+    }
+
     try:
         pa = PaloAltoCustom(config, params)
         pa.setupApiKey(params["username"], params["password"])
@@ -249,7 +256,8 @@ def unblock_ip(config, params):
         tag_name = params.get("tag_name", "fortisoarBlocking")
 
         if not ip_addresses:
-            raise ConnectorError("No IP addresses provided")
+            result["error_with_unblock"] = ["No IP addresses provided"]
+            return result
 
         # Ensure ip_addresses is a list
         if isinstance(ip_addresses, str):
@@ -262,12 +270,17 @@ def unblock_ip(config, params):
             try:
                 ip_address(ip_addr)
             except ValueError:
-                raise ConnectorError(f"Invalid IP address format: {ip_addr}")
+                result["error_with_unblock"].append(ip_addr)
+                continue
 
             entry = (
                 f'<entry ip="{ip_addr}"><tag><member>{tag_name}</member></tag></entry>'
             )
             entries.append(entry)
+
+        # If no valid entries, return with errors
+        if not entries:
+            return result
 
         xml_cmd = f"""<uid-message>
                 <type>update</type>
@@ -284,19 +297,106 @@ def unblock_ip(config, params):
         response_dict = xmltodict.parse(res_text)
 
         if response_dict.get("response", {}).get("@status") == "success":
-            return {
-                "status": "success",
-                "message": f"Successfully unblocked {len(ip_addresses)} IP address(es) with tag '{tag_name}'",
-                "unblocked_ips": ip_addresses,
-                "tag": tag_name,
-                "response": response_dict,
-            }
+            # All valid IPs were successfully unblocked
+            valid_ips = [
+                ip
+                for ip in ip_addresses
+                if ip not in result["error_with_unblock"]
+            ]
+            result["newly_unblocked"] = valid_ips
+            return result
+        elif response_dict.get("response", {}).get("@status") == "error":
+            # Parse error response to categorize IPs
+            msg_content = (
+                response_dict.get("response", {}).get("msg", {}).get("line", "")
+            )
+
+            logger.debug(f"Error response : {msg_content}")
+
+            # Parse XML response to extract individual IP statuses
+            try:
+                unregister_entries = []
+
+                # Handle case where msg_content is already parsed as OrderedDict
+                if isinstance(msg_content, dict) and "uid-response" in msg_content:
+                    unregister_entries = (
+                        msg_content.get("uid-response", {})
+                        .get("payload", {})
+                        .get("unregister", {})
+                        .get("entry", [])
+                    )
+                # Handle case where msg_content is a string containing XML
+                elif isinstance(msg_content, str) and "<uid-response>" in msg_content:
+                    # Extract uid-response XML
+                    start_idx = msg_content.find("<uid-response>")
+                    end_idx = msg_content.find("</uid-response>") + len(
+                        "</uid-response>"
+                    )
+                    uid_xml = msg_content[start_idx:end_idx]
+
+                    uid_dict = xmltodict.parse(uid_xml)
+                    unregister_entries = (
+                        uid_dict.get("uid-response", {})
+                        .get("payload", {})
+                        .get("unregister", {})
+                        .get("entry", [])
+                    )
+
+                if unregister_entries:
+                    # Ensure entries is a list
+                    if not isinstance(unregister_entries, list):
+                        unregister_entries = [unregister_entries]
+
+                    for entry in unregister_entries:
+                        ip_addr = entry.get("@ip")
+                        message = entry.get("@message", "")
+
+                        if "does not exist, ignore" in message or "not found" in message:
+                            result["not_exist"].append(ip_addr)
+                        elif "success" in message.lower():
+                            result["newly_unblocked"].append(ip_addr)
+                        else:
+                            result["error_with_unblock"].append(ip_addr)
+                else:
+                    # If we can't parse the detailed response, mark remaining valid IPs as errors
+                    valid_ips = [
+                        ip
+                        for ip in ip_addresses
+                        if ip not in result["error_with_unblock"]
+                    ]
+                    result["error_with_unblock"].extend(valid_ips)
+
+            except Exception as parse_err:
+                logger.warning(f"Failed to parse error response: {parse_err}")
+                # If parsing fails, mark remaining valid IPs as errors
+                valid_ips = [
+                    ip
+                    for ip in ip_addresses
+                    if ip not in result["error_with_unblock"]
+                ]
+                result["error_with_unblock"].extend(valid_ips)
+
+            return result
         else:
-            raise ConnectorError(f"Failed to unblock IP addresses: {res_text}")
+            # Unexpected response status
+            valid_ips = [
+                ip
+                for ip in ip_addresses
+                if ip not in result["error_with_unblock"]
+            ]
+            result["error_with_unblock"].extend(valid_ips)
+            return result
 
     except Exception as err:
         logger.exception(str(err))
-        raise ConnectorError(str(err))
+        # Mark all remaining IPs as errors
+        remaining_ips = [
+            ip
+            for ip in (ip_addresses if 'ip_addresses' in locals() else [])
+            if ip not in result["error_with_unblock"]
+        ]
+        result["error_with_unblock"].extend(remaining_ips)
+        return result
 
 
 def get_dynamic_address_groups(config, params):
