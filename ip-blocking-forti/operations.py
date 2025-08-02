@@ -10,6 +10,8 @@ class Endpoint:
     get_ha_status = "system/ha-checksums"
     address = "firewall/address"
     address_group = "firewall/addrgrp"
+    address6 = "firewall/address6"
+    address_group6 = "firewall/addrgrp6"
     zone = "system/zone"
 
 
@@ -98,6 +100,60 @@ def _create_address(config, host, vdom, addresses, username, password):
         raise ConnectorError("Error: {0}".format(err))
 
 
+def _is_ipv6_address(ip_string):
+    """Helper function to detect if an IP address is IPv6"""
+    try:
+        addr = ip_address(ip_string.split('/')[0])  # Remove CIDR notation if present
+        return addr.version == 6
+    except ValueError:
+        return False
+
+
+def _create_address6(config, host, vdom, addresses, username, password):
+    """Internal function to create IPv6 address objects"""
+    
+    try:
+        client = FortiGateFWClient(config, username, password)
+        client.login(host=host, vdom=vdom)
+        addr_name_list = []
+        for addr in addresses:
+            # if addr is ipv6 network, set name is IPv6_{addr}
+            try:
+                obj = ip_network(addr, False)
+                net = obj.network_address
+                if str(net) == "::":
+                    addr_name_list.append("all")
+                    continue
+                    
+                if obj.prefixlen == 128:
+                    name = f"IPv6_Host_{str(net)}"
+                else:
+                    name = f"IPv6_Network_{str(net)}_{str(obj.prefixlen)}"
+
+            except ValueError:
+                logger.error("Invalid IPv6 network", addr)
+                continue
+
+            url = f"{Endpoint.address6}/{name}"
+            check_addr = client.get(url)
+            logger.debug("check_addr (IPv6): %s", check_addr)
+            if check_addr["http_status"] == 404:
+                logger.info("Creating IPv6 address: %s", name)
+                data = {
+                    "name": f"{name}",
+                    "ip6": f"{str(obj)}",
+                    "color": "0",
+                    "comment": "fortisoar",
+                }
+                client.set(Endpoint.address6, data=data)
+            addr_name_list.append(name)
+        client.logout()
+        return addr_name_list
+    except Exception as err:
+        logger.exception("Error: {0}".format(err))
+        raise ConnectorError("Error: {0}".format(err))
+
+
 def get_blocked_ip(config, params):
     host = params.get("host")
     vdom = params.get("vdom") if params.get("vdom") else None
@@ -159,17 +215,28 @@ def block_ip(config, params):
         client = FortiGateFWClient(config, username, password)
         client.login(host=host, vdom=vdom)
 
+        # Detect if the IP address is IPv6
+        is_ipv6 = _is_ipv6_address(ip_address)
+        
         # First, create the address object if it doesn't exist
-        addr_name_list = _create_address(
-            config, host, vdom, [ip_address], username, password
-        )
+        if is_ipv6:
+            addr_name_list = _create_address6(
+                config, host, vdom, [ip_address], username, password
+            )
+            address_group_endpoint = Endpoint.address_group6
+        else:
+            addr_name_list = _create_address(
+                config, host, vdom, [ip_address], username, password
+            )
+            address_group_endpoint = Endpoint.address_group
+            
         if not addr_name_list:
             raise ConnectorError(f"Failed to create address object for {ip_address}")
 
         addr_name = addr_name_list[0]
 
         # Check if the address group exists
-        url = f"{Endpoint.address_group}/{ip_group_name}"
+        url = f"{address_group_endpoint}/{ip_group_name}"
         response = client.get(url)
         if response["http_status"] == 404:
             raise ConnectorError(f"IP group {ip_group_name} not found")
@@ -200,7 +267,7 @@ def block_ip(config, params):
 
         # Update the address group with the new member
         update_response = client.set(
-            f"{Endpoint.address_group}/{ip_group_name}", data=data
+            f"{address_group_endpoint}/{ip_group_name}", data=data
         )
 
         client.logout()
@@ -232,8 +299,17 @@ def unblock_ip(config, params):
         client = FortiGateFWClient(config, username, password)
         client.login(host=host, vdom=vdom)
 
+        # Detect if the IP address is IPv6
+        is_ipv6 = _is_ipv6_address(ip_address)
+        
+        # Choose appropriate endpoint based on IP version
+        if is_ipv6:
+            address_group_endpoint = Endpoint.address_group6
+        else:
+            address_group_endpoint = Endpoint.address_group
+
         # Check if the address group exists
-        url = f"{Endpoint.address_group}/{ip_group_name}"
+        url = f"{address_group_endpoint}/{ip_group_name}"
         response = client.get(url)
         if response["http_status"] == 404:
             raise ConnectorError(f"IP group {ip_group_name} not found")
@@ -248,10 +324,15 @@ def unblock_ip(config, params):
         address_group = results[0]
         current_members = address_group.get("member", [])
 
-        # Check if address is in the group
-        addr_name_list = _create_address(
-            config, host, vdom, [ip_address], username, password
-        )
+        # Check if address is in the group - create address name to match existing logic
+        if is_ipv6:
+            addr_name_list = _create_address6(
+                config, host, vdom, [ip_address], username, password
+            )
+        else:
+            addr_name_list = _create_address(
+                config, host, vdom, [ip_address], username, password
+            )
         addr_name = addr_name_list[0] if addr_name_list else None
 
         if not addr_name or addr_name not in [
@@ -272,7 +353,7 @@ def unblock_ip(config, params):
 
         # Update the address group with the new members
         update_response = client.set(
-            f"{Endpoint.address_group}/{ip_group_name}", data=data
+            f"{address_group_endpoint}/{ip_group_name}", data=data
         )
 
         client.logout()

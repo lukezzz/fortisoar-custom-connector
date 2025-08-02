@@ -1,3 +1,0 @@
-# Dependencies
-# fortiosapi==1.0.5
-paramiko

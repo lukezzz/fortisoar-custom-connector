@@ -4,8 +4,6 @@ import urllib.parse
 from connectors.core.connector import get_logger, ConnectorError, api_health_check
 
 from .utils import (
-    addr2dec,
-    dec2addr,
     _get_list_from_str_or_list,
     _validate_vsys,
 )
@@ -38,13 +36,21 @@ class Endpoint:
     service_group = SERVICE_GROUP_API
 
 
+def _is_ipv6_address(ip_string):
+    """Helper function to detect if an IP address is IPv6"""
+    try:
+        addr = ip_address(ip_string.split("/")[0])  # Remove CIDR notation if present
+        return addr.version == 6
+    except ValueError:
+        return False
+
+
 def _get_client(config, params):
     """Helper function to create HillStoneFWClient instance"""
     config["url"] = params.get("host") or config.get("url")
     username = params.get("username") or config.get("username")
     password = params.get("password") or config.get("password")
     client = HillStoneFWClient(config, username, password)
-    client.login()
     return client
 
 
@@ -67,52 +73,20 @@ def block_ip(config, params):
         client = _get_client(config, params)
 
         try:
-            # Get existing address group
-            existing_group = _get_address_group(client, group_name)
-            existing_ips = []
-
-            if existing_group:
-                # Extract existing IPs from group - Updated for new API format
-                if existing_group.get("ip"):
-                    # Parse IP list which contains decimal IP addresses
-                    for ip_entry in existing_group["ip"]:
-                        if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
-                            try:
-                                # Convert decimal IP back to string format
-                                ip_decimal = ip_entry["ip_addr"]
-                                # Handle both string and integer formats
-                                if isinstance(ip_decimal, str):
-                                    ip_decimal = int(ip_decimal)
-                                ip_addr = dec2addr(ip_decimal)
-                                existing_ips.append(ip_addr)
-                            except (ValueError, TypeError) as e:
-                                logger.warning(
-                                    f"Failed to convert IP decimal {ip_entry.get('ip_addr')}: {e}"
-                                )
-                                continue
-
-            # add new IPs
-            new_ips = []
+            # Try to add each IP individually and handle "already exists" responses
             for ip in ip_list:
-                if ip in existing_ips:
+                success, error_msg, is_already_added = _add_ip_to_address_group(
+                    client, group_name, ip
+                )
+
+                if success:
+                    result["newly_blocked"].append(ip)
+                elif is_already_added:
                     result["already_blocked"].append(ip)
                 else:
-                    new_ips.append(ip)
-                    result["newly_blocked"].append(ip)
-
-            # Update address group (always update if we have IPs to block, even if they already exist)
-            if result["newly_blocked"] or (not existing_group and existing_ips):
-                success, error_msg = _update_address_group(
-                    client, group_name, new_ips, existing_ips
-                )
-                if not success:
-                    for ip_addr in new_ips:
-                        result["error_with_block"].append(
-                            {"ip": ip_addr, "error": error_msg or "Unknown error"}
-                        )
-                    result["newly_blocked"] = [
-                        ip for ip in result["newly_blocked"] if ip not in new_ips
-                    ]
+                    result["error_with_block"].append(
+                        {"ip": ip, "error": error_msg or "Unknown error"}
+                    )
 
         finally:
             pass
@@ -148,46 +122,60 @@ def unblock_ip(config, params):
 
             existing_ips = []
 
-            # Parse IP list which contains decimal IP addresses
+            # Parse IPv4 list which now contains string IP addresses
             if existing_group.get("ip"):
                 for ip_entry in existing_group["ip"]:
                     if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
                         try:
-                            # Convert decimal IP back to string format
-                            ip_decimal = ip_entry["ip_addr"]
-                            # Handle both string and integer formats
-                            if isinstance(ip_decimal, str):
-                                ip_decimal = int(ip_decimal)
-                            ip_addr = dec2addr(ip_decimal)
-                            existing_ips.append(ip_addr)
+                            # IP addresses are now stored as strings
+                            ip_addr = ip_entry["ip_addr"]
+                            netmask = ip_entry.get("netmask", "32")
+
+                            # Format as CIDR notation if not /32
+                            if netmask != "32":
+                                existing_ips.append(f"{ip_addr}/{netmask}")
+                            else:
+                                existing_ips.append(ip_addr)
                         except (ValueError, TypeError) as e:
                             logger.warning(
-                                f"Failed to convert IP decimal {ip_entry.get('ip_addr')}: {e}"
+                                f"Failed to parse IPv4 {ip_entry.get('ip_addr')}: {e}"
                             )
                             continue
 
-            # Remove IPs from group
-            ips_to_remove = []
+            # Parse IPv6 list
+            if existing_group.get("ipv6"):
+                for ipv6_entry in existing_group["ipv6"]:
+                    if isinstance(ipv6_entry, dict) and "ipv6_addr" in ipv6_entry:
+                        try:
+                            ipv6_addr = ipv6_entry["ipv6_addr"]
+                            netmask = ipv6_entry.get("netmask", "128")
+                            # Format as CIDR notation if not /128
+                            if netmask != "128":
+                                existing_ips.append(f"{ipv6_addr}/{netmask}")
+                            else:
+                                existing_ips.append(ipv6_addr)
+                        except (ValueError, TypeError) as e:
+                            logger.warning(
+                                f"Failed to parse IPv6 {ipv6_entry.get('ipv6_addr')}: {e}"
+                            )
+                            continue
+
+            # Remove IPs from group using DELETE method for each IP
             for ip in ip_list:
                 if ip in existing_ips:
-                    ips_to_remove.append(ip)
-                    result["newly_unblocked"].append(ip)
+                    success, error_msg, not_in_group = _remove_ip_from_address_group(
+                        client, group_name, ip
+                    )
+                    if success:
+                        result["newly_unblocked"].append(ip)
+                    elif not_in_group:
+                        result["not_exist"].append(ip)
+                    else:
+                        result["error_with_unblock"].append(
+                            {"ip": ip, "error": error_msg or "Unknown error"}
+                        )
                 else:
                     result["not_exist"].append(ip)
-
-            # Update address group (remove IPs)
-            if ips_to_remove:
-                remaining_ips = [ip for ip in existing_ips if ip not in ips_to_remove]
-                success, error_msg = _update_address_group(
-                    client, group_name, [], remaining_ips, is_removal=True
-                )
-                if not success:
-                    result["error_with_unblock"].extend(ips_to_remove)
-                    result["newly_unblocked"] = [
-                        ip
-                        for ip in result["newly_unblocked"]
-                        if ip not in ips_to_remove
-                    ]
 
         finally:
             # client.logout()
@@ -217,27 +205,59 @@ def get_blocked_ips(config, params):
 
                 existing_group = _get_address_group(client, group_name)
                 if existing_group:
-                    # Parse IP list which contains decimal IP addresses
+                    # Parse IPv4 list which now contains string IP addresses
                     if existing_group.get("ip"):
                         for ip_entry in existing_group["ip"]:
                             if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
                                 try:
-                                    # Convert decimal IP back to string format
-                                    ip_decimal = ip_entry["ip_addr"]
-                                    # Handle both string and integer formats
-                                    if isinstance(ip_decimal, str):
-                                        ip_decimal = int(ip_decimal)
-                                    ip_addr = dec2addr(ip_decimal)
-                                    group_info["ips"].append(ip_addr)
+                                    # IP addresses are now stored as strings
+                                    ip_addr = ip_entry["ip_addr"]
+                                    netmask = ip_entry.get("netmask", "32")
+
+                                    # Format as CIDR notation if not /32
+                                    if netmask != "32":
+                                        formatted_ip = f"{ip_addr}/{netmask}"
+                                    else:
+                                        formatted_ip = ip_addr
+
+                                    group_info["ips"].append(formatted_ip)
                                     # Add member info for compatibility
                                     member_info = {
-                                        "name": f"addr_{ip_addr}",
-                                        "ips": [ip_addr],
+                                        "name": f"addr_{formatted_ip}",
+                                        "ips": [formatted_ip],
                                     }
                                     group_info["members"].append(member_info)
                                 except (ValueError, TypeError) as e:
                                     logger.warning(
-                                        f"Failed to convert IP decimal {ip_entry.get('ip_addr')}: {e}"
+                                        f"Failed to parse IPv4 {ip_entry.get('ip_addr')}: {e}"
+                                    )
+                                    continue
+
+                    # Parse IPv6 list
+                    if existing_group.get("ipv6"):
+                        for ipv6_entry in existing_group["ipv6"]:
+                            if (
+                                isinstance(ipv6_entry, dict)
+                                and "ipv6_addr" in ipv6_entry
+                            ):
+                                try:
+                                    ipv6_addr = ipv6_entry["ipv6_addr"]
+                                    netmask = ipv6_entry.get("netmask", "128")
+                                    # Format as CIDR notation if not /128
+                                    if netmask != "128":
+                                        formatted_ip = f"{ipv6_addr}/{netmask}"
+                                    else:
+                                        formatted_ip = ipv6_addr
+                                    group_info["ips"].append(formatted_ip)
+                                    # Add member info for compatibility
+                                    member_info = {
+                                        "name": f"addr_{formatted_ip}",
+                                        "ipv6": [formatted_ip],
+                                    }
+                                    group_info["members"].append(member_info)
+                                except (ValueError, TypeError) as e:
+                                    logger.warning(
+                                        f"Failed to parse IPv6 {ipv6_entry.get('ipv6_addr')}: {e}"
                                     )
                                     continue
 
@@ -257,24 +277,13 @@ def get_blocked_ips(config, params):
 
 
 def _get_address_group(client, group_name):
-    """Get address group details using dynamic query"""
+    """Get address group details using REST API"""
     try:
         # Build query parameters for address group lookup
-        query_data = {
-            "fields": [],
-            "conditions": [{"field": "name", "value": group_name}],
-            "extraParams": {},
-            "start": 0,
-            "limit": 50,
-            "page": 1,
-        }
-
-        # Encode the query parameters for the URL
-        # query_params = {"isDynamic": "1", "query": json.dumps(query_data)}
+        query_data = {"conditions": [{"field": "name", "value": group_name}]}
 
         # Build the URL with query parameters
-        # query_string = urllib.parse.urlencode(query_params)
-        url = f"{Endpoint.address_group}?isTransaction=1&query={json.dumps(query_data)}"
+        url = f"api/addrbook?query={json.dumps(query_data)}"
 
         response = client.request("GET", url)
         logger.debug(f"Response from address group query: {response.json()}")
@@ -307,93 +316,202 @@ def _get_address_details(client, addr_name):
         return None
 
 
-def _update_address_group(client, group_name, new_ips, existing_ips, is_removal=False):
-    """Update address group with new IPs using direct IP list format"""
-    # Combine all IPs based on operation type
-    if is_removal:
-        # For removal, use only the remaining IPs (existing_ips contains the remaining ones)
-        all_ips = existing_ips
-    else:
-        # For addition, combine existing and new IPs
-        all_ips = existing_ips + new_ips
-
-    # Convert IP addresses to the required format
-    ip_list = []
-    for ip in all_ips:
-        try:
-            # Skip empty or None IPs
-            if not ip or not isinstance(ip, str):
-                logger.warning(f"Skipping invalid IP: {ip}")
-                continue
-
-            # Strip whitespace
-            ip = ip.strip()
-            if not ip:
-                logger.warning(f"Skipping empty IP after stripping whitespace")
-                continue
-
-            ip_decimal = addr2dec(ip)
-            ip_list.append({"ip_addr": ip_decimal, "netmask": 32, "flag": 0})
-            logger.debug(f"Converted IP {ip} to decimal: {ip_decimal}")
-        except ValueError as e:
-            logger.warning(f"Skipping invalid IP '{ip}': {e}")
-            continue
-        except Exception as e:
-            logger.error(f"Unexpected error converting IP '{ip}': {e}")
-            continue
-
-    logger.debug(f"Updating address group {group_name} with IPs: {ip_list}")
-
-    # Check if we have any valid IPs to process
-    if not ip_list:
-        if all_ips:
-            error_msg = f"No valid IPs found in the list: {all_ips}"
-            logger.error(error_msg)
-            return False, error_msg
-        else:
-            # This is the case where we're removing all IPs from the group
-            logger.info(f"Removing all IPs from address group {group_name}")
-
+def _add_ip_to_address_group(client, group_name, ip):
+    """Add a single IP to address group and handle 'already exists' responses"""
     try:
-        # Prepare data in the required format
-        data = [
-            {
-                "is_ipv6": 0,
-                "type": 0,
-                "name": group_name,
-                "description": "IP Blocking Group - Updated by FortiSOAR",
-                "entry": [],
-                "ip": ip_list,
-                "range": [],
-                "host": [],
-                "wildcard": [],
-                "country": [],
-            }
-        ]
+        # Validate and format the IP address
+        ip = ip.strip()
+        if not ip:
+            return False, "Empty IP address", False
 
-        # Always use PUT request
-        response = client.request("PUT", Endpoint.address_group, data=data)
+        # Determine if IP is IPv6
+        is_ipv6 = _is_ipv6_address(ip)
+
+        # Prepare IP data structure
+        if is_ipv6:
+            # Handle IPv6 address
+            try:
+                if "/" in ip:
+                    ipv6_net = ip_network(ip, False)
+                    ipv6_addr = str(ipv6_net.network_address)
+                    netmask = ipv6_net.prefixlen
+                else:
+                    ipv6_addr = ip
+                    netmask = 128
+
+                ip_data = {
+                    "name": group_name,
+                    "is_ipv6": "1",
+                    "ipv6": [
+                        {"ipv6_addr": ipv6_addr, "netmask": str(netmask), "flag": "0"}
+                    ],
+                    "predefined": "0",
+                }
+            except ValueError as e:
+                return False, f"Invalid IPv6 address '{ip}': {e}", False
+        else:
+            # Handle IPv4 address
+            try:
+                ip_addr = ip_address(ip.split("/")[0])  # Remove CIDR if present
+                netmask = "32"  # Default netmask for host addresses
+                if "/" in ip:
+                    # Handle CIDR notation
+                    ip_net = ip_network(ip, False)
+                    ip_str = str(ip_net.network_address)
+                    netmask = str(ip_net.prefixlen)
+                else:
+                    ip_str = str(ip_addr)
+
+                ip_data = {
+                    "name": group_name,
+                    "is_ipv6": "0",
+                    "ip": [{"ip_addr": ip_str, "netmask": netmask, "flag": "0"}],
+                    "predefined": "0",
+                }
+            except ValueError as e:
+                return False, f"Invalid IPv4 address '{ip}': {e}", False
+
+        logger.debug(f"Adding IP {ip} to group {group_name}: {ip_data}")
+        # Make API call to add IP to group
+        response = client.request("POST", "api/addrbook?nodeOption=1", data=[ip_data])
 
         if response.status_code == 200:
             result = response.json()
+            logger.debug(f"Response from add IP to group: {result}")
+
             success = result.get("success", False)
             if success:
-                return True, None
+                return True, None, False
             else:
-                error_msg = result.get("message", "API returned success=false")
-                logger.error(
-                    f"Failed to update address group {group_name}: {error_msg}"
-                )
-                return False, error_msg
+                # Check if the error indicates the IP is already in the group
+                exception = result.get("exception", {})
+                error_code = exception.get("code", "")
+                error_message = exception.get("message", "")
+
+                # Check for "already added" error
+                if (
+                    error_code == "400000002"
+                    and "already added" in error_message.lower()
+                ):
+                    logger.debug(f"IP {ip} is already in group {group_name}")
+                    return False, error_message, True
+                else:
+                    logger.error(
+                        f"Failed to add IP {ip} to group {group_name}: {error_message}"
+                    )
+                    return False, error_message, False
         else:
             error_msg = f"HTTP {response.status_code}: {response.text}"
-            logger.error(f"Failed to update address group {group_name}: {error_msg}")
-            return False, error_msg
+            logger.error(f"Failed to add IP {ip} to group {group_name}: {error_msg}")
+            return False, error_msg, False
 
     except Exception as err:
         error_msg = str(err)
-        logger.error(f"Error updating address group {group_name}: {error_msg}")
-        return False, error_msg
+        logger.error(f"Error adding IP {ip_address} to group {group_name}: {error_msg}")
+        return False, error_msg, False
+
+
+def _remove_ip_from_address_group(client, group_name, ip_address):
+    """Remove a single IP from address group using DELETE method"""
+    try:
+        # Validate and format the IP address
+        ip = ip_address.strip()
+        if not ip:
+            return False, "Empty IP address", False
+
+        # Determine if IP is IPv6
+        is_ipv6 = _is_ipv6_address(ip)
+
+        # Prepare IP data structure for DELETE request
+        if is_ipv6:
+            # Handle IPv6 address
+            try:
+                if "/" in ip:
+                    ipv6_net = ip_network(ip, False)
+                    ipv6_addr = str(ipv6_net.network_address)
+                    netmask = ipv6_net.prefixlen
+                else:
+                    ipv6_addr = ip
+                    netmask = 128
+
+                ip_data = {
+                    "name": group_name,
+                    "is_ipv6": "1",
+                    "ipv6": [
+                        {"ipv6_addr": ipv6_addr, "netmask": str(netmask), "flag": "0"}
+                    ],
+                    "predefined": "0",
+                }
+            except ValueError as e:
+                return False, f"Invalid IPv6 address '{ip}': {e}", False
+        else:
+            # Handle IPv4 address
+            try:
+                # Validate IP address format using the imported ip_address function
+                from ipaddress import ip_address as validate_ip
+
+                ip_addr = validate_ip(ip.split("/")[0])  # Remove CIDR if present
+                netmask = "32"  # Default netmask for host addresses
+                if "/" in ip:
+                    # Handle CIDR notation
+                    ip_net = ip_network(ip, False)
+                    ip_str = str(ip_net.network_address)
+                    netmask = str(ip_net.prefixlen)
+                else:
+                    ip_str = str(ip_addr)
+
+                ip_data = {
+                    "name": group_name,
+                    "is_ipv6": "0",
+                    "ip": [{"ip_addr": ip_str, "netmask": netmask, "flag": "0"}],
+                    "predefined": "0",
+                }
+            except ValueError as e:
+                return False, f"Invalid IPv4 address '{ip}': {e}", False
+
+        logger.debug(f"Removing IP {ip} from group {group_name}: {ip_data}")
+
+        # Make API call to remove IP from group using DELETE method
+        response = client.request("DELETE", "api/addrbook?nodeOption=1", data=[ip_data])
+
+        if response.status_code == 200:
+            result = response.json()
+            logger.debug(f"Response from remove IP from group: {result}")
+
+            success = result.get("success", False)
+            if success:
+                return True, None, False
+            else:
+                # Check if the error indicates the IP is not in the group
+                exception = result.get("exception", {})
+                error_code = exception.get("code", "")
+                error_message = exception.get("message", "")
+
+                # Check for "no member" error (IP not in group)
+                if (
+                    error_code == "400000004"
+                    and "has no member" in error_message.lower()
+                ):
+                    logger.debug(f"IP {ip} is not in group {group_name}")
+                    return False, error_message, True
+                else:
+                    logger.error(
+                        f"Failed to remove IP {ip} from group {group_name}: {error_message}"
+                    )
+                    return False, error_message, False
+        else:
+            error_msg = f"HTTP {response.status_code}: {response.text}"
+            logger.error(
+                f"Failed to remove IP {ip} from group {group_name}: {error_msg}"
+            )
+            return False, error_msg, False
+
+    except Exception as err:
+        error_msg = str(err)
+        logger.error(
+            f"Error removing IP {ip_address} from group {group_name}: {error_msg}"
+        )
+        return False, error_msg, False
 
 
 def get_config(config):
