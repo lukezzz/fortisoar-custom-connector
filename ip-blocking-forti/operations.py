@@ -103,7 +103,7 @@ def _create_address(config, host, vdom, addresses, username, password):
 def _is_ipv6_address(ip_string):
     """Helper function to detect if an IP address is IPv6"""
     try:
-        addr = ip_address(ip_string.split('/')[0])  # Remove CIDR notation if present
+        addr = ip_address(ip_string.split("/")[0])  # Remove CIDR notation if present
         return addr.version == 6
     except ValueError:
         return False
@@ -111,7 +111,7 @@ def _is_ipv6_address(ip_string):
 
 def _create_address6(config, host, vdom, addresses, username, password):
     """Internal function to create IPv6 address objects"""
-    
+
     try:
         client = FortiGateFWClient(config, username, password)
         client.login(host=host, vdom=vdom)
@@ -124,7 +124,7 @@ def _create_address6(config, host, vdom, addresses, username, password):
                 if str(net) == "::":
                     addr_name_list.append("all")
                     continue
-                    
+
                 if obj.prefixlen == 128:
                     name = f"IPv6_Host_{str(net)}"
                 else:
@@ -154,15 +154,183 @@ def _create_address6(config, host, vdom, addresses, username, password):
         raise ConnectorError("Error: {0}".format(err))
 
 
+def _get_child_groups(client, parent_group_name, is_ipv6=False):
+    """Get all child groups for a parent group"""
+    endpoint = Endpoint.address_group6 if is_ipv6 else Endpoint.address_group
+    child_groups = []
+
+    # Try to find child groups with pattern {parent_group_name}_1, {parent_group_name}_2, etc.
+    i = 1
+    while True:
+        child_group_name = f"{parent_group_name}_{i}"
+        url = f"{endpoint}/{child_group_name}"
+        response = client.get(url)
+
+        if response["http_status"] == 404:
+            break  # No more child groups found
+        elif response["http_status"] == 200:
+            child_groups.append(child_group_name)
+            i += 1
+        else:
+            logger.warning(
+                f"Unexpected response when checking child group {child_group_name}: {response}"
+            )
+            break
+
+    return child_groups
+
+
+def _get_available_child_group(
+    client, parent_group_name, max_ip_per_group, is_ipv6=False
+):
+    """Find an available child group that has space for more IPs, or create a new one"""
+    endpoint = Endpoint.address_group6 if is_ipv6 else Endpoint.address_group
+    child_groups = _get_child_groups(client, parent_group_name, is_ipv6)
+
+    # Check existing child groups for available space
+    for child_group_name in child_groups:
+        url = f"{endpoint}/{child_group_name}"
+        response = client.get(url)
+
+        if response["http_status"] == 200:
+            results = response.get("results", [])
+            if results:
+                current_members = results[0].get("member", [])
+                if len(current_members) < max_ip_per_group:
+                    return child_group_name, current_members
+
+    # Create a new child group
+    new_child_index = len(child_groups) + 1
+    new_child_name = f"{parent_group_name}_{new_child_index}"
+
+    # Create the new child group
+    data = {
+        "name": new_child_name,
+        "type": "default",
+        "comment": "fortisoar auto-created child group",
+    }
+
+    create_response = client.post(endpoint, data=data)
+    if create_response["http_status"] not in [200, 201]:
+        raise ConnectorError(
+            f"Failed to create child group {new_child_name}: {create_response}"
+        )
+
+    logger.info(f"Created new child group: {new_child_name}")
+
+    # Add the new child group to the parent group
+    _add_child_to_parent_group(client, parent_group_name, new_child_name, is_ipv6)
+
+    return new_child_name, []
+
+
+def _add_child_to_parent_group(
+    client, parent_group_name, child_group_name, is_ipv6=False
+):
+    """Add a child group to the parent group"""
+    endpoint = Endpoint.address_group6 if is_ipv6 else Endpoint.address_group
+
+    # Get current parent group
+    url = f"{endpoint}/{parent_group_name}"
+    response = client.get(url)
+
+    if response["http_status"] == 404:
+        # Create parent group if it doesn't exist
+        data = {
+            "name": parent_group_name,
+            "type": "default",
+            "member": [{"name": child_group_name}],
+            "comment": "fortisoar parent group",
+        }
+        create_response = client.post(endpoint, data=data)
+        if create_response["http_status"] not in [200, 201]:
+            raise ConnectorError(
+                f"Failed to create parent group {parent_group_name}: {create_response}"
+            )
+        logger.info(f"Created new parent group: {parent_group_name}")
+    elif response["http_status"] == 200:
+        # Add child to existing parent group
+        results = response.get("results", [])
+        if results:
+            parent_group = results[0]
+            current_members = parent_group.get("member", [])
+
+            # Check if child group is already a member
+            existing_members = [member["name"] for member in current_members]
+            if child_group_name not in existing_members:
+                updated_members = current_members + [{"name": child_group_name}]
+
+                data = {
+                    "name": parent_group_name,
+                    "type": parent_group.get("type", "default"),
+                    "member": updated_members,
+                }
+
+                update_response = client.set(
+                    f"{endpoint}/{parent_group_name}", data=data
+                )
+                if update_response["http_status"] not in [200, 201]:
+                    raise ConnectorError(
+                        f"Failed to update parent group {parent_group_name}: {update_response}"
+                    )
+                logger.info(
+                    f"Added child group {child_group_name} to parent group {parent_group_name}"
+                )
+    else:
+        raise ConnectorError(
+            f"Failed to get parent group {parent_group_name}: {response}"
+        )
+
+
+def _find_ip_in_child_groups(client, parent_group_name, addr_name, is_ipv6=False):
+    """Find which child group contains the specified IP address"""
+    endpoint = Endpoint.address_group6 if is_ipv6 else Endpoint.address_group
+    child_groups = _get_child_groups(client, parent_group_name, is_ipv6)
+
+    for child_group_name in child_groups:
+        url = f"{endpoint}/{child_group_name}"
+        response = client.get(url)
+
+        if response["http_status"] == 200:
+            results = response.get("results", [])
+            if results:
+                current_members = results[0].get("member", [])
+                existing_members = [member["name"] for member in current_members]
+                if addr_name in existing_members:
+                    return child_group_name, current_members
+
+    return None, []
+
+
+def _get_all_blocked_ips_from_child_groups(client, parent_group_name, is_ipv6=False):
+    """Get all blocked IPs from all child groups"""
+    endpoint = Endpoint.address_group6 if is_ipv6 else Endpoint.address_group
+    child_groups = _get_child_groups(client, parent_group_name, is_ipv6)
+    all_blocked_ips = []
+
+    for child_group_name in child_groups:
+        url = f"{endpoint}/{child_group_name}"
+        response = client.get(url)
+
+        if response["http_status"] == 200:
+            results = response.get("results", [])
+            if results:
+                current_members = results[0].get("member", [])
+                blocked_ips = [member["name"] for member in current_members]
+                all_blocked_ips.extend(blocked_ips)
+
+    return all_blocked_ips
+
+
 def get_blocked_ip(config, params):
     host = params.get("host")
     vdom = params.get("vdom") if params.get("vdom") else None
-
     ip_group_name = params.get("ip_group_name")
 
     try:
         client = FortiGateFWClient(config, params["username"], params["password"])
         client.login(host=host, vdom=vdom)
+
         if not ip_group_name:
             # Get all addresses
             url = f"{Endpoint.address}"
@@ -174,25 +342,29 @@ def get_blocked_ip(config, params):
                 addr["name"] for addr in addresses if addr.get("type") == "ipmask"
             ]
         else:
-            # Get specific address group
+            # Check if parent group exists
             url = f"{Endpoint.address_group}/{ip_group_name}"
             response = client.get(url)
+
             if response["http_status"] == 404:
-                raise ConnectorError(f"IP group {ip_group_name} not found")
+                # Try IPv6 groups
+                url = f"{Endpoint.address_group6}/{ip_group_name}"
+                response = client.get(url)
+                if response["http_status"] == 404:
+                    raise ConnectorError(f"IP group {ip_group_name} not found")
+                is_ipv6 = True
+            else:
+                is_ipv6 = False
+
             if response["http_status"] != 200:
                 raise ConnectorError(
                     f"Failed to get IP group {ip_group_name}: {response}"
                 )
 
-            # Extract member names from address group
-            results = response.get("results", [])
-            if not results:
-                blocked_ips = []
-            else:
-                # Get the first result (address group)
-                address_group = results[0]
-                members = address_group.get("member", [])
-                blocked_ips = [member["name"] for member in members]
+            # Get all blocked IPs from child groups
+            blocked_ips = _get_all_blocked_ips_from_child_groups(
+                client, ip_group_name, is_ipv6
+            )
 
         client.logout()
         return blocked_ips
@@ -210,6 +382,9 @@ def block_ip(config, params):
 
     ip_group_name = params.get("ip_group_name")
     ip_address = params.get("ip_address")
+    max_ip_per_group = params.get(
+        "max_ip_per_group", 500
+    )  # Default to 500 if not specified
 
     try:
         client = FortiGateFWClient(config, username, password)
@@ -217,43 +392,27 @@ def block_ip(config, params):
 
         # Detect if the IP address is IPv6
         is_ipv6 = _is_ipv6_address(ip_address)
-        
+
         # First, create the address object if it doesn't exist
         if is_ipv6:
             addr_name_list = _create_address6(
                 config, host, vdom, [ip_address], username, password
             )
-            address_group_endpoint = Endpoint.address_group6
         else:
             addr_name_list = _create_address(
                 config, host, vdom, [ip_address], username, password
             )
-            address_group_endpoint = Endpoint.address_group
-            
+
         if not addr_name_list:
             raise ConnectorError(f"Failed to create address object for {ip_address}")
 
         addr_name = addr_name_list[0]
 
-        # Check if the address group exists
-        url = f"{address_group_endpoint}/{ip_group_name}"
-        response = client.get(url)
-        if response["http_status"] == 404:
-            raise ConnectorError(f"IP group {ip_group_name} not found")
-        if response["http_status"] != 200:
-            raise ConnectorError(f"Failed to get IP group {ip_group_name}: {response}")
-
-        # Get current members of the address group
-        results = response.get("results", [])
-        if not results:
-            current_members = []
-        else:
-            address_group = results[0]
-            current_members = address_group.get("member", [])
-
-        # Check if address is already in the group
-        existing_members = [member["name"] for member in current_members]
-        if addr_name in existing_members:
+        # Check if the IP is already blocked in any child group
+        child_group_name, current_members = _find_ip_in_child_groups(
+            client, ip_group_name, addr_name, is_ipv6
+        )
+        if child_group_name:
             client.logout()
             return {
                 "already_blocked": [ip_address],
@@ -261,14 +420,41 @@ def block_ip(config, params):
                 "error_with_block": [],
             }
 
-        # Add the new address to existing members
-        updated_members = current_members + [{"name": addr_name}]
-        data = {"name": ip_group_name, "member": updated_members}
-
-        # Update the address group with the new member
-        update_response = client.set(
-            f"{address_group_endpoint}/{ip_group_name}", data=data
+        # Find an available child group or create a new one
+        available_child_group, current_members = _get_available_child_group(
+            client, ip_group_name, max_ip_per_group, is_ipv6
         )
+
+        # Add the new address to the child group
+        updated_members = current_members + [{"name": addr_name}]
+
+        endpoint = Endpoint.address_group6 if is_ipv6 else Endpoint.address_group
+
+        # Get the current child group details to preserve other fields
+        url = f"{endpoint}/{available_child_group}"
+        response = client.get(url)
+        if response["http_status"] != 200:
+            raise ConnectorError(
+                f"Failed to get child group {available_child_group}: {response}"
+            )
+
+        child_group_details = response.get("results", [{}])[0]
+
+        data = {
+            "name": available_child_group,
+            "type": child_group_details.get("type", "default"),
+            "member": updated_members,
+            "comment": child_group_details.get(
+                "comment", "fortisoar auto-created child group"
+            ),
+        }
+
+        # Update the child group with the new member
+        update_response = client.set(f"{endpoint}/{available_child_group}", data=data)
+        if update_response["http_status"] not in [200, 201]:
+            raise ConnectorError(
+                f"Failed to update child group {available_child_group}: {update_response}"
+            )
 
         client.logout()
         return {
@@ -301,30 +487,8 @@ def unblock_ip(config, params):
 
         # Detect if the IP address is IPv6
         is_ipv6 = _is_ipv6_address(ip_address)
-        
-        # Choose appropriate endpoint based on IP version
-        if is_ipv6:
-            address_group_endpoint = Endpoint.address_group6
-        else:
-            address_group_endpoint = Endpoint.address_group
 
-        # Check if the address group exists
-        url = f"{address_group_endpoint}/{ip_group_name}"
-        response = client.get(url)
-        if response["http_status"] == 404:
-            raise ConnectorError(f"IP group {ip_group_name} not found")
-        if response["http_status"] != 200:
-            raise ConnectorError(f"Failed to get IP group {ip_group_name}: {response}")
-
-        # Get current members of the address group
-        results = response.get("results", [])
-        if not results:
-            raise ConnectorError(f"IP group {ip_group_name} is empty")
-
-        address_group = results[0]
-        current_members = address_group.get("member", [])
-
-        # Check if address is in the group - create address name to match existing logic
+        # Create address name to match existing logic
         if is_ipv6:
             addr_name_list = _create_address6(
                 config, host, vdom, [ip_address], username, password
@@ -333,11 +497,8 @@ def unblock_ip(config, params):
             addr_name_list = _create_address(
                 config, host, vdom, [ip_address], username, password
             )
-        addr_name = addr_name_list[0] if addr_name_list else None
 
-        if not addr_name or addr_name not in [
-            member["name"] for member in current_members
-        ]:
+        if not addr_name_list:
             client.logout()
             return {
                 "not_exist": [ip_address],
@@ -345,16 +506,63 @@ def unblock_ip(config, params):
                 "error_with_unblock": [],
             }
 
-        # Remove the address from the group
+        addr_name = addr_name_list[0]
+
+        # Find which child group contains the IP
+        child_group_name, current_members = _find_ip_in_child_groups(
+            client, ip_group_name, addr_name, is_ipv6
+        )
+
+        if not child_group_name:
+            client.logout()
+            return {
+                "not_exist": [ip_address],
+                "newly_unblocked": [],
+                "error_with_unblock": [],
+            }
+
+        # Remove the address from the child group
         updated_members = [
             member for member in current_members if member["name"] != addr_name
         ]
-        data = {"name": ip_group_name, "member": updated_members}
 
-        # Update the address group with the new members
-        update_response = client.set(
-            f"{address_group_endpoint}/{ip_group_name}", data=data
-        )
+        endpoint = Endpoint.address_group6 if is_ipv6 else Endpoint.address_group
+
+        # Get the current child group details to preserve other fields
+        url = f"{endpoint}/{child_group_name}"
+        response = client.get(url)
+        if response["http_status"] != 200:
+            raise ConnectorError(
+                f"Failed to get child group {child_group_name}: {response}"
+            )
+
+        child_group_details = response.get("results", [{}])[0]
+
+        data = {
+            "name": child_group_name,
+            "type": child_group_details.get("type", "default"),
+            "category": child_group_details.get("category", "default"),
+            "uuid": child_group_details.get(
+                "uuid", "00000000-0000-0000-0000-000000000000"
+            ),
+            "member": updated_members,
+            "comment": child_group_details.get(
+                "comment", "fortisoar auto-created child group"
+            ),
+            "exclude": child_group_details.get("exclude", "disable"),
+            "exclude-member": child_group_details.get("exclude-member", []),
+            "color": child_group_details.get("color", "0"),
+            "tagging": child_group_details.get("tagging", []),
+            "allow-routing": child_group_details.get("allow-routing", "disable"),
+            "fabric-object": child_group_details.get("fabric-object", "disable"),
+        }
+
+        # Update the child group with the new members (without the removed IP)
+        update_response = client.set(f"{endpoint}/{child_group_name}", data=data)
+        if update_response["http_status"] not in [200, 201]:
+            raise ConnectorError(
+                f"Failed to update child group {child_group_name}: {update_response}"
+            )
 
         client.logout()
         return {
