@@ -615,7 +615,8 @@
           "value": "smart-http",
           "options": [
             "smart-http",
-            "fast-tcp"
+            "udp",
+            "tcp"
           ]
         },
         {
@@ -631,6 +632,15 @@
             "dr",
             "tun"
           ]
+        },
+        {
+          "title": "SSL Offload",
+          "name": "ssloffload",
+          "type": "checkbox",
+          "required": false,
+          "visible": true,
+          "editable": true,
+          "value": false
         },
         {
           "title": "SLB Pool UUID",
@@ -953,6 +963,103 @@
           "visible": true,
           "value": "",
           "description": "Subnet range in format 'start_ip-end_ip' (e.g., '1.1.1.10-1.1.1.20'). If not provided, will use the configured value."
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Get Master IP",
+      "operation": "get_master_ip",
+      "description": "Get the master node IP in an HA setup",
+      "category": "investigation",
+      "annotation": "get_master_ip",
+      "output_schema": {
+        "master_ip": "",
+        "master_uuid": "",
+        "current_state": "",
+        "peer_ip": "",
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        }
+      ],
+      "enabled": true
+    },
+    {
+      "title": "Sync Config",
+      "operation": "sync_config",
+      "description": "Sync Configuration All",
+      "category": "investigation",
+      "annotation": "sync_config",
+      "output_schema": {
+        "message": "",
+        "master_uuid": "",
+        "config_sync": "",
+        "status": ""
+      },
+      "parameters": [
+        {
+          "title": "Host",
+          "name": "host",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Username",
+          "name": "username",
+          "type": "text",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Password",
+          "name": "password",
+          "type": "password",
+          "required": true,
+          "editable": true,
+          "visible": true,
+          "value": ""
+        },
+        {
+          "title": "Config Sync",
+          "name": "config_sync",
+          "type": "text",
+          "required": false,
+          "editable": true,
+          "visible": true,
+          "value": "all",
+          "description": "Config sync option"
         }
       ],
       "enabled": true

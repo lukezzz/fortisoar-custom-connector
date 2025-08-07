@@ -85,11 +85,13 @@ def get_new_vs_ip(config, params):
 
     try:
         new_vs_ip = find_free_vs_ip(client, vs_dest_subnet)
-        return {
-            "new_ip": new_vs_ip,
-            "subnet_range": vs_dest_subnet,
-            "status": "success",
-        }
+        # return {
+        #     "new_ip": new_vs_ip,
+        #     "subnet_range": vs_dest_subnet,
+        #     "status": "success",
+        # }
+        return new_vs_ip
+
     except ConnectorError:
         raise
     except Exception as e:
@@ -109,10 +111,7 @@ def get_slb_pool_list(config, params):
     if response.status_code == 200:
         data = response.json()
         # Return specific pool data instead of full response
-        if (
-            data.get("res", {}).get("status") == "success"
-            or data.get("res", {}).get("status") == "failure"
-        ):
+        if ():
             return data.get("data", {}).get("slb_pool", [])
         else:
             raise ConnectorError(
@@ -135,10 +134,7 @@ def get_slb_pool_detail(config, params):
     if response.status_code == 200:
         data = response.json()
         # Return specific pool detail instead of full response
-        if (
-            data.get("res", {}).get("status") == "success"
-            or data.get("res", {}).get("status") == "failure"
-        ):
+        if data.get("res", {}).get("status") == "success":
             pools = data.get("data", {}).get("slb_pool", [])
             if pools:
                 return pools[0]  # Return the first (and should be only) pool
@@ -164,10 +160,7 @@ def get_healthcheck_list(config, params):
     if response.status_code == 200:
         data = response.json()
         # Return specific healthcheck data instead of full response
-        if (
-            data.get("res", {}).get("status") == "success"
-            or data.get("res", {}).get("status") == "failure"
-        ):
+        if data.get("res", {}).get("status") == "success":
             return data.get("data", {}).get("healthcheck", [])
         else:
             raise ConnectorError(
@@ -222,10 +215,7 @@ def create_slb_node(config, params):
     if response.status_code == 200:
         data = response.json()
         # Return specific node creation result
-        if (
-            data.get("res", {}).get("status") == "success"
-            or data.get("res", {}).get("status") == "failure"
-        ):
+        if data.get("res", {}).get("status") == "success":
             return {
                 "message": f"Node {node_name} created successfully",
                 "node_name": node_name,
@@ -322,7 +312,7 @@ def create_slb_pool(config, params):
     if response.status_code == 200:
         data = response.json()
         if data.get("res", {}).get("status") == "success":
-            logger.info(f"Pool {pool_name} created successfully")
+            logger.debug(f"Pool creation response: {data}")
             # Get the pool UUID from creation response
             pool_uuid = data.get("data", {}).get("uuid")
             if pool_uuid:
@@ -330,9 +320,35 @@ def create_slb_pool(config, params):
             else:
                 raise ConnectorError(f"Pool creation succeeded but no UUID returned")
         else:
-            raise ConnectorError(
-                f"API returned error: {data.get('res', {}).get('msg', 'Unknown error')}"
-            )
+            # Check if the error is because pool already exists
+            error_msg = data.get("res", {}).get("msg", "")
+            if data.get("res", {}).get("status") == "failure" and (
+                "exsited" in error_msg or "existed" in error_msg
+            ):
+                logger.info(
+                    f"Pool {pool_name} already exists, getting UUID from detail API"
+                )
+                # Get pool UUID from detail API
+                pool_detail_response = client.run(
+                    f"{Endpoint.slb_pool}/{pool_name}", method="GET"
+                )
+                if pool_detail_response.status_code == 200:
+                    pool_detail_data = pool_detail_response.json()
+                    if pool_detail_data.get("data", {}).get("slb_pool"):
+                        pool_uuid = pool_detail_data["data"]["slb_pool"]["uuid"]
+                        logger.debug(f"Found existing pool UUID: {pool_uuid}")
+                    else:
+                        raise ConnectorError(
+                            f"Pool {pool_name} not found in detail API"
+                        )
+                else:
+                    raise ConnectorError(
+                        f"Failed to get pool details: {pool_detail_response.text}"
+                    )
+            else:
+                raise ConnectorError(
+                    f"API returned error: {data.get('res', {}).get('msg', 'Unknown error')}"
+                )
     else:
         raise ConnectorError(f"Failed to create pool: {response.text}")
 
@@ -387,7 +403,7 @@ def create_slb_pool(config, params):
             if node_response.status_code == 200:
                 node_result = node_response.json()
                 if node_result.get("res", {}).get("status") == "success":
-                    logger.info(f"Node {node_name} created successfully")
+                    logger.debug(f"Node creation response: {node_result}")
                     # Get the node UUID from creation response
                     node_uuid = node_result.get("data", {}).get("uuid")
                     if node_uuid:
@@ -397,7 +413,33 @@ def create_slb_pool(config, params):
                             f"Node creation succeeded but no UUID returned"
                         )
                 else:
-                    logger.warning(f"Node creation response: {node_result}")
+                    # Check if the error is because node already exists
+                    error_msg = node_result.get("res", {}).get("msg", "")
+                    if node_result.get("res", {}).get("status") == "failure" and (
+                        "exsited" in error_msg or "existed" in error_msg
+                    ):
+                        logger.info(
+                            f"Node {node_name} already exists, getting UUID from detail API"
+                        )
+                        # Get node UUID from detail API
+                        node_detail_response = client.run(
+                            f"{Endpoint.slb_node_list}/{node_name}", method="GET"
+                        )
+                        if node_detail_response.status_code == 200:
+                            node_detail_data = node_detail_response.json()
+                            if node_detail_data.get("data", {}).get("slb_node"):
+                                node_uuid = node_detail_data["data"]["slb_node"]["uuid"]
+                                logger.debug(f"Found existing node UUID: {node_uuid}")
+                            else:
+                                logger.warning(
+                                    f"Node {node_name} not found in detail API"
+                                )
+                        else:
+                            logger.warning(
+                                f"Failed to get node details: {node_detail_response.text}"
+                            )
+                    else:
+                        logger.warning(f"Node creation response: {node_result}")
             else:
                 logger.warning(
                     f"Node creation failed, might already exist: {node_response.text}"
@@ -451,10 +493,7 @@ def create_slb_pool(config, params):
 
             if member_response.status_code == 200:
                 member_data = member_response.json()
-                if (
-                    member_data.get("res", {}).get("status") == "success"
-                    or member_data.get("res", {}).get("status") == "failure"
-                ):
+                if member_data.get("res", {}).get("status") == "success":
                     created_members.append(
                         {
                             "address": member_address,
@@ -497,10 +536,7 @@ def get_vserver_list(config, params):
     if response.status_code == 200:
         data = response.json()
         # Return specific vserver data instead of full response
-        if (
-            data.get("res", {}).get("status") == "success"
-            or data.get("res", {}).get("status") == "failure"
-        ):
+        if data.get("res", {}).get("status") == "success":
             return data.get("data", {}).get("slb_vserver", [])
         else:
             raise ConnectorError(
@@ -521,7 +557,8 @@ def create_vserver(config, params):
     vs_name = params.get("vs_name")
     vip = params.get("vip")  # format: "172.16.60.181:20444"
     ip_type = params.get("ip_type", "ipv4")
-    protocol = params.get("protocol", "fast-tcp")
+    protocol = params.get("protocol", "smart-http")
+    ssloffload = params.get("ssloffload", False)  # Default to off
     mode = params.get("mode", "nat")
     enable = params.get("enable", "on")
     slb_pool_uuid = params.get("slb_pool_uuid")
@@ -534,6 +571,9 @@ def create_vserver(config, params):
         vs_data = check_vs_result.json()
         if vs_data.get("data", {}).get("slb_vserver"):
             raise ConnectorError(f"Virtual server {vs_name} already exists")
+
+    # mapping protocol
+    protocol = "smart-http" if protocol.lower() == "http" else protocol.lower()
 
     # Prepare vserver data
     vserver_data = {
@@ -551,7 +591,7 @@ def create_vserver(config, params):
 
     # Optional SSL profile
     ssl_profile_uuid = params.get("ssl_profile_uuid")
-    if ssl_profile_uuid:
+    if ssloffload and ssl_profile_uuid:
         vserver_data["ssl_profile_uuid"] = ssl_profile_uuid
 
     # Optional web security profile
@@ -589,11 +629,9 @@ def create_vserver(config, params):
     response = client.run(Endpoint.slb_vs, method="POST", data=vserver_data)
     if response.status_code == 200:
         data = response.json()
+        logger.debug(f"Vserver creation response: {data}")
         # Return specific vserver creation result
-        if (
-            data.get("res", {}).get("status") == "success"
-            or data.get("res", {}).get("status") == "failure"
-        ):
+        if data.get("res", {}).get("status") == "success":
             return {
                 "message": f"Virtual server {vs_name} created successfully",
                 "vs_name": vs_name,
@@ -751,10 +789,7 @@ def add_pool_member(config, params):
 
     if response.status_code == 200:
         data = response.json()
-        if (
-            data.get("res", {}).get("status") == "success"
-            or data.get("res", {}).get("status") == "failure"
-        ):
+        if data.get("res", {}).get("status") == "success":
             return {
                 "message": f"Member {server_address} added to pool {pool_name} successfully",
                 "pool_name": pool_name,
@@ -783,10 +818,7 @@ def get_node_list(config, params):
     if response.status_code == 200:
         data = response.json()
         # Return specific node data instead of full response
-        if (
-            data.get("res", {}).get("status") == "success"
-            or data.get("res", {}).get("status") == "failure"
-        ):
+        if data.get("res", {}).get("status") == "success":
             return data.get("data", {}).get("slb_node", [])
         else:
             raise ConnectorError(
@@ -809,10 +841,7 @@ def get_node_detail(config, params):
     if response.status_code == 200:
         data = response.json()
         # Return specific node detail instead of full response
-        if (
-            data.get("res", {}).get("status") == "success"
-            or data.get("res", {}).get("status") == "failure"
-        ):
+        if data.get("res", {}).get("status") == "success":
             nodes = data.get("data", {}).get("slb_node", [])
             if nodes:
                 return nodes[0]  # Return the first (and should be only) node
@@ -824,6 +853,107 @@ def get_node_detail(config, params):
             )
     else:
         raise ConnectorError(f"Failed to get node detail: {response.text}")
+
+
+def get_master_ip(config, params):
+    """Get the master IP address and UUID by checking HA status"""
+    host = params.get("host")
+    username = params.get("username")
+    password = params.get("password")
+
+    client = YunkeClient(config, host, username, password)
+
+    # Get HA status
+    response = client.run("/adc/v3.0/ha/vrrp/", method="GET")
+    if response.status_code != 200:
+        raise ConnectorError(f"Failed to get HA status: {response.text}")
+
+    data = response.json()
+    if data.get("res", {}).get("status") != "success":
+        raise ConnectorError(
+            f"API returned error: {data.get('res', {}).get('msg', 'Unknown error')}"
+        )
+
+    ha_list = data.get("data", {}).get("ha", [])
+    if not ha_list:
+        raise ConnectorError("No HA configuration found")
+
+    # Check all HA configurations to find the master
+    master_ip = None
+    master_uuid = None
+    current_state = None
+    peer_ip = None
+
+    for ha_config in ha_list:
+        config_state = ha_config.get("current_state", "").lower()
+        config_peer_ip = ha_config.get("peer_ip", "")
+        config_uuid = ha_config.get("uuid", "")
+
+        if config_state == "master":
+            # Current node is master, return current host IP
+            master_ip = host
+            master_uuid = config_uuid
+            current_state = config_state
+            peer_ip = config_peer_ip
+            break
+        elif config_state in ["backup", "slave"]:
+            # Current node is not master, peer IP should be master
+            master_ip = config_peer_ip if config_peer_ip else host
+            master_uuid = config_uuid
+            current_state = config_state
+            peer_ip = config_peer_ip
+
+    # If no master found, use the first configuration as fallback(Standalone mode)
+    if master_ip is None:
+        current_state = "standalone"
+        peer_ip = ""
+        master_uuid = ""
+        master_ip = host
+
+    return {
+        "master_ip": master_ip,
+        "master_uuid": master_uuid,
+        "current_state": current_state,
+        "peer_ip": peer_ip,
+        "status": "success",
+    }
+
+
+def sync_config(config, params):
+    """Synchronize configuration in HA cluster"""
+    host = params.get("host")
+    username = params.get("username")
+    password = params.get("password")
+    master_uuid = params.get("master_uuid", "")
+
+    client = YunkeClient(config, host, username, password)
+
+    # Prepare sync payload
+    sync_payload = {"config_sync": "all"}
+
+    logger.debug(
+        f"Syncing config for HA UUID {master_uuid} with payload: {sync_payload}"
+    )
+
+    # Execute config sync
+    sync_endpoint = f"/adc/v3.0/ha/vrrp/{master_uuid}"
+    response = client.run(sync_endpoint, method="PUT", data=sync_payload)
+
+    if response.status_code == 200:
+        data = response.json()
+        if data.get("res", {}).get("status") == "success":
+            return {
+                "message": f"Config sync completed successfully for HA UUID {master_uuid}",
+                "master_uuid": master_uuid,
+                "config_sync": "all",
+                "status": "success",
+            }
+        else:
+            raise ConnectorError(
+                f"API returned error: {data.get('res', {}).get('msg', 'Unknown error')}"
+            )
+    else:
+        raise ConnectorError(f"Failed to sync config: {response.text}")
 
 
 operations = {
@@ -838,4 +968,6 @@ operations = {
     "create_vserver": create_vserver,
     "add_pool_member": add_pool_member,
     "get_new_vs_ip": get_new_vs_ip,
+    "get_master_ip": get_master_ip,
+    "sync_config": sync_config,
 }
