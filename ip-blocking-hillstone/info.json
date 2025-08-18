@@ -38,14 +38,14 @@
         "tooltip": "Provide VDOM CSV or List format, if VDOM mode enabled. These used for actions related to IP addresses"
       },
       {
-        "title": "API Version",
-        "type": "text",
-        "name": "api_version",
+        "title": "Use Old API",
+        "type": "checkbox",
+        "name": "use_old_api",
         "required": false,
         "visible": true,
         "editable": true,
-        "value": "5.5R10",
-        "tooltip": "API version to use for requests, default is 5.5R10"
+        "value": false,
+        "tooltip": "Enable compatibility mode for legacy API support"
       }
     ]
   },

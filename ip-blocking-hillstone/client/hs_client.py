@@ -33,6 +33,7 @@ class HillStoneFWClient:
         self.vsys_id = config.get("vsys_id", 0)
 
         self.username = base64.b64encode(username.encode()).decode()
+        self.raw_username = username
         self.password = base64.b64encode(password.encode()).decode()
         self._logged = False
 
@@ -45,16 +46,15 @@ class HillStoneFWClient:
         self._session.mount("https://", TimeoutHTTPAdapter(max_retries=retries))
 
         self.url_prefix = f"https://{self.host}/rest"
-        self.api_version = config.get("api_version", "5.5R10")
+        self.use_old_api = config.get("use_old_api", False)
 
     def login(self, is_api_login=True):
         logger.debug("Logging in to Hillstone")
-        # url = (
-        #     f"{self.url_prefix}/api/login"
-        #     if is_api_login
-        #     else f"{self.url_prefix}/login"
-        # )
-        url = f"{self.url_prefix}/api/login"
+        url = (
+            f"{self.url_prefix}/api/login"
+            if is_api_login
+            else f"{self.url_prefix}/login"
+        )
         login_data = {
             "username": self.username,
             "password": self.password,
@@ -71,21 +71,22 @@ class HillStoneFWClient:
             )
             if res_data.get("passwordExpired") == 1:
                 raise ConnectorError("password expired")
-            if not self.vsys_id:
-                self.vsys_id = res_data["vsysId"]
+            self.vsys_id = res_data["vsysId"]
 
-            api_headers = {
-                "X-Api-Language": "en",
-                "X-Auth-Role": res_data["role"],
-                "X-Auth-Token": res_data["token"],
-                "X-Auth-Vsysid": str(self.vsys_id),
-                "Content-Type": "application/json",
-                "X-Auth-Username": res_data["username"],
-                "X-Api-Version": self.api_version,
-                "X-Auth-Fromrootvsys": str(res_data["fromrootvsys"]).lower(),
-            }
-            self._session.headers.update(api_headers)
-
+            if self.use_old_api:
+                cookie = f"token={res_data['token']};username={self.raw_username};vsysId={self.vsys_id};role={res_data['role']};fromrootvsys={res_data['fromrootvsys']}"
+                self._session.headers.update({"Cookie": cookie})
+            else:
+                api_headers = {
+                    "X-Api-Language": "en",
+                    "X-Auth-Role": res_data["role"],
+                    "X-Auth-Token": res_data["token"],
+                    "X-Auth-Vsysid": str(self.vsys_id),
+                    "Content-Type": "application/json",
+                    "X-Auth-Username": res_data["username"],
+                    "X-Auth-Fromrootvsys": str(res_data["fromrootvsys"]).lower(),
+                }
+                self._session.headers.update(api_headers)
             self._logged = True
         else:
             raise ConnectorError(
@@ -103,7 +104,7 @@ class HillStoneFWClient:
     def check_session(self):
         logger.debug("Checking session", self._logged)
         if not self._logged:
-            self.login(is_api_login=True)
+            self.login()
         # Optionally, you can add a session validation check here
         # by making a simple API call to verify the session is still valid
 

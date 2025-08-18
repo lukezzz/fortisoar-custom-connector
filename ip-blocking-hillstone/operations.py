@@ -12,18 +12,6 @@ from .constants import *
 
 logger = get_logger("ip-blocking-hillStone")
 
-protocol_type_dict = {
-    "Any": 0,
-    "ICMP": 1,
-    "IGMP": 2,
-    "GGP": 3,
-    "IPv4": 4,
-    "ST": 5,
-    "TCP": 6,
-    "UDP": 17,
-    "ip": 0,
-}
-
 
 class Endpoint:
     # monitor_router_lookup = "router/lookup"
@@ -73,20 +61,28 @@ def block_ip(config, params):
         client = _get_client(config, params)
 
         try:
-            # Try to add each IP individually and handle "already exists" responses
-            for ip in ip_list:
-                success, error_msg, is_already_added = _add_ip_to_address_group(
-                    client, group_name, ip
-                )
-
-                if success:
-                    result["newly_blocked"].append(ip)
-                elif is_already_added:
-                    result["already_blocked"].append(ip)
-                else:
-                    result["error_with_block"].append(
-                        {"ip": ip, "error": error_msg or "Unknown error"}
+            # Check if we should use old API
+            if client.use_old_api:
+                logger.debug("Using old API for blocking IPs")
+                client.login(is_api_login=True)
+                return _block_ip_old_api(client, group_name, ip_list)
+            else:
+                logger.debug("Using new API for blocking IPs")
+                client.login()
+                # Try to add each IP individually and handle "already exists" responses
+                for ip in ip_list:
+                    success, error_msg, is_already_added = _add_ip_to_address_group(
+                        client, group_name, ip
                     )
+
+                    if success:
+                        result["newly_blocked"].append(ip)
+                    elif is_already_added:
+                        result["already_blocked"].append(ip)
+                    else:
+                        result["error_with_block"].append(
+                            {"ip": ip, "error": error_msg or "Unknown error"}
+                        )
 
         finally:
             pass
@@ -114,68 +110,76 @@ def unblock_ip(config, params):
         client = _get_client(config, params)
 
         try:
-            # Get existing address group
-            existing_group = _get_address_group(client, group_name)
-            if not existing_group:
-                result["not_exist"] = ip_list
-                return result
+            # Check if we should use old API
+            if client.use_old_api:
+                logger.debug("Using old API for unblocking IPs")
+                client.login(is_api_login=True)
+                return _unblock_ip_old_api(client, group_name, ip_list)
+            else:
+                logger.debug("Using new API for unblocking IPs")
+                client.login()
+                # Get existing address group
+                existing_group = _get_address_group(client, group_name)
+                if not existing_group:
+                    result["not_exist"] = ip_list
+                    return result
 
-            existing_ips = []
+                existing_ips = []
 
-            # Parse IPv4 list which now contains string IP addresses
-            if existing_group.get("ip"):
-                for ip_entry in existing_group["ip"]:
-                    if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
-                        try:
-                            # IP addresses are now stored as strings
-                            ip_addr = ip_entry["ip_addr"]
-                            netmask = ip_entry.get("netmask", "32")
+                # Parse IPv4 list which now contains string IP addresses
+                if existing_group.get("ip"):
+                    for ip_entry in existing_group["ip"]:
+                        if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
+                            try:
+                                # IP addresses are now stored as strings
+                                ip_addr = ip_entry["ip_addr"]
+                                netmask = ip_entry.get("netmask", "32")
 
-                            # Format as CIDR notation if not /32
-                            if netmask != "32":
-                                existing_ips.append(f"{ip_addr}/{netmask}")
-                            else:
-                                existing_ips.append(ip_addr)
-                        except (ValueError, TypeError) as e:
-                            logger.warning(
-                                f"Failed to parse IPv4 {ip_entry.get('ip_addr')}: {e}"
-                            )
-                            continue
+                                # Format as CIDR notation if not /32
+                                if netmask != "32":
+                                    existing_ips.append(f"{ip_addr}/{netmask}")
+                                else:
+                                    existing_ips.append(ip_addr)
+                            except (ValueError, TypeError) as e:
+                                logger.warning(
+                                    f"Failed to parse IPv4 {ip_entry.get('ip_addr')}: {e}"
+                                )
+                                continue
 
-            # Parse IPv6 list
-            if existing_group.get("ipv6"):
-                for ipv6_entry in existing_group["ipv6"]:
-                    if isinstance(ipv6_entry, dict) and "ipv6_addr" in ipv6_entry:
-                        try:
-                            ipv6_addr = ipv6_entry["ipv6_addr"]
-                            netmask = ipv6_entry.get("netmask", "128")
-                            # Format as CIDR notation if not /128
-                            if netmask != "128":
-                                existing_ips.append(f"{ipv6_addr}/{netmask}")
-                            else:
-                                existing_ips.append(ipv6_addr)
-                        except (ValueError, TypeError) as e:
-                            logger.warning(
-                                f"Failed to parse IPv6 {ipv6_entry.get('ipv6_addr')}: {e}"
-                            )
-                            continue
+                # Parse IPv6 list
+                if existing_group.get("ipv6"):
+                    for ipv6_entry in existing_group["ipv6"]:
+                        if isinstance(ipv6_entry, dict) and "ipv6_addr" in ipv6_entry:
+                            try:
+                                ipv6_addr = ipv6_entry["ipv6_addr"]
+                                netmask = ipv6_entry.get("netmask", "128")
+                                # Format as CIDR notation if not /128
+                                if netmask != "128":
+                                    existing_ips.append(f"{ipv6_addr}/{netmask}")
+                                else:
+                                    existing_ips.append(ipv6_addr)
+                            except (ValueError, TypeError) as e:
+                                logger.warning(
+                                    f"Failed to parse IPv6 {ipv6_entry.get('ipv6_addr')}: {e}"
+                                )
+                                continue
 
-            # Remove IPs from group using DELETE method for each IP
-            for ip in ip_list:
-                if ip in existing_ips:
-                    success, error_msg, not_in_group = _remove_ip_from_address_group(
-                        client, group_name, ip
-                    )
-                    if success:
-                        result["newly_unblocked"].append(ip)
-                    elif not_in_group:
-                        result["not_exist"].append(ip)
-                    else:
-                        result["error_with_unblock"].append(
-                            {"ip": ip, "error": error_msg or "Unknown error"}
+                # Remove IPs from group using DELETE method for each IP
+                for ip in ip_list:
+                    if ip in existing_ips:
+                        success, error_msg, not_in_group = (
+                            _remove_ip_from_address_group(client, group_name, ip)
                         )
-                else:
-                    result["not_exist"].append(ip)
+                        if success:
+                            result["newly_unblocked"].append(ip)
+                        elif not_in_group:
+                            result["not_exist"].append(ip)
+                        else:
+                            result["error_with_unblock"].append(
+                                {"ip": ip, "error": error_msg or "Unknown error"}
+                            )
+                    else:
+                        result["not_exist"].append(ip)
 
         finally:
             # client.logout()
@@ -200,70 +204,123 @@ def get_blocked_ips(config, params):
         client = _get_client(config, params)
 
         try:
-            for group_name in group_names:
-                group_info = {"name": group_name, "members": [], "ips": []}
+            # Check if we should use old API
+            if client.use_old_api:
+                logger.debug("Using old API for getting blocked IPs")
+                client.login(is_api_login=True)
+                for group_name in group_names:
+                    group_info = {"name": group_name, "members": [], "ips": []}
 
-                existing_group = _get_address_group(client, group_name)
-                if existing_group:
-                    # Parse IPv4 list which now contains string IP addresses
-                    if existing_group.get("ip"):
-                        for ip_entry in existing_group["ip"]:
-                            if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
-                                try:
-                                    # IP addresses are now stored as strings
-                                    ip_addr = ip_entry["ip_addr"]
-                                    netmask = ip_entry.get("netmask", "32")
+                    existing_group, has_error = _get_address_group_old_api(
+                        client, group_name
+                    )
+                    if has_error:
+                        # API call failed, add to error list
+                        result["error"].append(
+                            f"Failed to retrieve group {group_name} from API"
+                        )
+                        continue
 
-                                    # Format as CIDR notation if not /32
-                                    if netmask != "32":
-                                        formatted_ip = f"{ip_addr}/{netmask}"
-                                    else:
-                                        formatted_ip = ip_addr
+                    if existing_group:
+                        # Parse IPv4 list
+                        if existing_group.get("ip"):
+                            for ip_entry in existing_group["ip"]:
+                                if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
+                                    try:
+                                        ip_addr = ip_entry["ip_addr"]
+                                        netmask = ip_entry.get("netmask", "32")
 
-                                    group_info["ips"].append(formatted_ip)
-                                    # Add member info for compatibility
-                                    member_info = {
-                                        "name": f"addr_{formatted_ip}",
-                                        "ips": [formatted_ip],
-                                    }
-                                    group_info["members"].append(member_info)
-                                except (ValueError, TypeError) as e:
-                                    logger.warning(
-                                        f"Failed to parse IPv4 {ip_entry.get('ip_addr')}: {e}"
-                                    )
-                                    continue
+                                        if netmask != "32":
+                                            ip_str = f"{ip_addr}/{netmask}"
+                                        else:
+                                            ip_str = ip_addr
 
-                    # Parse IPv6 list
-                    if existing_group.get("ipv6"):
-                        for ipv6_entry in existing_group["ipv6"]:
-                            if (
-                                isinstance(ipv6_entry, dict)
-                                and "ipv6_addr" in ipv6_entry
-                            ):
-                                try:
-                                    ipv6_addr = ipv6_entry["ipv6_addr"]
-                                    netmask = ipv6_entry.get("netmask", "128")
-                                    # Format as CIDR notation if not /128
-                                    if netmask != "128":
-                                        formatted_ip = f"{ipv6_addr}/{netmask}"
-                                    else:
-                                        formatted_ip = ipv6_addr
-                                    group_info["ips"].append(formatted_ip)
-                                    # Add member info for compatibility
-                                    member_info = {
-                                        "name": f"addr_{formatted_ip}",
-                                        "ipv6": [formatted_ip],
-                                    }
-                                    group_info["members"].append(member_info)
-                                except (ValueError, TypeError) as e:
-                                    logger.warning(
-                                        f"Failed to parse IPv6 {ipv6_entry.get('ipv6_addr')}: {e}"
-                                    )
-                                    continue
+                                        group_info["ips"].append(ip_str)
+                                        group_info["members"].append(
+                                            {
+                                                "name": ip_str,
+                                                "type": "address",
+                                                "ip": ip_str,
+                                            }
+                                        )
+                                    except (ValueError, TypeError) as e:
+                                        logger.warning(
+                                            f"Failed to parse IPv4 {ip_entry.get('ip_addr')}: {e}"
+                                        )
+                                        continue
 
-                    result["groups"].append(group_info)
-                else:
-                    result["error"].append(f"Group {group_name} not found")
+                        result["groups"].append(group_info)
+                    else:
+                        result["error"].append(f"Group {group_name} not found")
+            else:
+                logger.debug("Using new API for getting blocked IPs")
+                client.login()
+                for group_name in group_names:
+                    group_info = {"name": group_name, "members": [], "ips": []}
+
+                    existing_group = _get_address_group(client, group_name)
+                    if existing_group:
+                        # Parse IPv4 list which now contains string IP addresses
+                        if existing_group.get("ip"):
+                            for ip_entry in existing_group["ip"]:
+                                if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
+                                    try:
+                                        ip_addr = ip_entry["ip_addr"]
+                                        netmask = ip_entry.get("netmask", "32")
+
+                                        # Format as CIDR notation if not /32
+                                        if netmask != "32":
+                                            ip_str = f"{ip_addr}/{netmask}"
+                                        else:
+                                            ip_str = ip_addr
+
+                                        group_info["ips"].append(ip_str)
+                                        group_info["members"].append(
+                                            {
+                                                "name": ip_str,
+                                                "type": "address",
+                                                "ip": ip_str,
+                                            }
+                                        )
+                                    except (ValueError, TypeError) as e:
+                                        logger.warning(
+                                            f"Failed to parse IPv4 {ip_entry.get('ip_addr')}: {e}"
+                                        )
+                                        continue
+
+                        # Parse IPv6 list
+                        if existing_group.get("ipv6"):
+                            for ipv6_entry in existing_group["ipv6"]:
+                                if (
+                                    isinstance(ipv6_entry, dict)
+                                    and "ipv6_addr" in ipv6_entry
+                                ):
+                                    try:
+                                        ipv6_addr = ipv6_entry["ipv6_addr"]
+                                        netmask = ipv6_entry.get("netmask", "128")
+                                        # Format as CIDR notation if not /128
+                                        if netmask != "128":
+                                            ip_str = f"{ipv6_addr}/{netmask}"
+                                        else:
+                                            ip_str = ipv6_addr
+
+                                        group_info["ips"].append(ip_str)
+                                        group_info["members"].append(
+                                            {
+                                                "name": ip_str,
+                                                "type": "address",
+                                                "ip": ip_str,
+                                            }
+                                        )
+                                    except (ValueError, TypeError) as e:
+                                        logger.warning(
+                                            f"Failed to parse IPv6 {ipv6_entry.get('ipv6_addr')}: {e}"
+                                        )
+                                        continue
+
+                        result["groups"].append(group_info)
+                    else:
+                        result["error"].append(f"Group {group_name} not found")
 
         finally:
             # client.logout()
@@ -272,6 +329,253 @@ def get_blocked_ips(config, params):
     except Exception as err:
         logger.exception(f"Error in get_blocked_ips: {err}")
         raise ConnectorError(f"Error getting blocked IPs: {err}")
+
+    return result
+
+
+def _get_address_group_old_api(client, group_name):
+    """Get address group details using old REST API
+    Returns: tuple (group_data, has_error)
+        - group_data: group information if found, None if not found
+        - has_error: True if API call failed, False if successful
+    """
+    try:
+        # Build query parameters for address group lookup
+        filter_str = {
+            "conditions": [{"field": "name", "operator": 0, "value": group_name}]
+        }
+        params = {"query": json.dumps(filter_str)}
+
+        endpoint = f"api/config/addrbook"
+        response = client.request("GET", endpoint, parameters=params)
+
+        logger.debug(f"Old API response from address group query: {response.json()}")
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("success") and data.get("result"):
+                # Return the first matching group (should be exact match)
+                for group in data.get("result", []):
+                    if group.get("name") == group_name:
+                        return group, False
+                # Group not found but API call successful
+                return None, False
+            elif data.get("success") is False:
+                # API returned error
+                logger.error(
+                    f"API returned error for address group {group_name}: {data}"
+                )
+                return None, True
+        else:
+            # HTTP error
+            logger.error(
+                f"HTTP error {response.status_code} getting address group {group_name}"
+            )
+            return None, True
+
+        return None, False
+    except Exception as err:
+        logger.error(f"Error getting address group {group_name} with old API: {err}")
+        return None, True
+
+
+def _update_address_group_old_api(client, group_data):
+    """Update address group using old REST API PUT method"""
+    try:
+        ip = client.host
+        endpoint = "api/addrbook"
+
+        response = client.request("PUT", endpoint, data=group_data)
+        logger.debug(f"Old API update response: {response.json()}")
+
+        if response.status_code == 200:
+            result = response.json()
+            return result.get("success", False), result.get("exception", {}).get(
+                "message", ""
+            )
+        else:
+            return False, f"HTTP {response.status_code}: {response.text}"
+    except Exception as err:
+        logger.error(f"Error updating address group with old API: {err}")
+        return False, str(err)
+
+
+def _block_ip_old_api(client, group_name, ip_list):
+    """Block IPs using old API method"""
+    result = {
+        "already_blocked": [],
+        "newly_blocked": [],
+        "error_with_block": [],
+        "error_message": "",
+    }
+
+    try:
+        # Get current address book
+        current_addrbook, has_error = _get_address_group_old_api(client, group_name)
+        if has_error:
+            # API call failed, raise error instead of proceeding
+            error_msg = f"Failed to retrieve address group {group_name} from API"
+            result["error_message"] = error_msg
+            raise ConnectorError(error_msg)
+
+        if not current_addrbook:
+            # Create new address book if it doesn't exist
+            current_addrbook = {
+                "name": group_name,
+                "is_ipv6": "0",
+                "is_ordered": "0",
+                "ip": [],
+            }
+
+        # Get existing IPs for comparison
+        existing_ips = set()
+        if current_addrbook.get("ip"):
+            for ip_entry in current_addrbook["ip"]:
+                if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
+                    ip_addr = ip_entry["ip_addr"]
+                    netmask = ip_entry.get("netmask", "32")
+                    if netmask != "32":
+                        existing_ips.add(f"{ip_addr}/{netmask}")
+                    else:
+                        existing_ips.add(ip_addr)
+
+        # Process each IP to block
+        new_addr_list = []
+        for ip in ip_list:
+            ip = ip.strip()
+            if not ip:
+                continue
+
+            # Check if IP is already blocked
+            if ip in existing_ips:
+                result["already_blocked"].append(ip)
+                continue
+
+            # Determine if IP is IPv6
+            is_ipv6 = _is_ipv6_address(ip)
+
+            if is_ipv6:
+                # Skip IPv6 for now as the old API structure focuses on IPv4
+                result["error_with_block"].append(
+                    {"ip": ip, "error": "IPv6 not supported in old API mode"}
+                )
+                continue
+
+            try:
+                # Validate and format IPv4 address
+                ip_addr = ip_address(ip.split("/")[0])
+                netmask = "32"
+                if "/" in ip:
+                    ip_net = ip_network(ip, False)
+                    ip_str = str(ip_net.network_address)
+                    netmask = str(ip_net.prefixlen)
+                else:
+                    ip_str = str(ip_addr)
+
+                # Add to new address list
+                new_addr_list.append({"ip_addr": ip_str, "netmask": netmask, "flag": 0})
+
+            except ValueError as e:
+                result["error_with_block"].append(
+                    {"ip": ip, "error": f"Invalid IP address: {e}"}
+                )
+                continue
+
+        # Extend current address book with new addresses
+        if new_addr_list:
+            if not current_addrbook.get("ip"):
+                current_addrbook["ip"] = []
+            current_addrbook["ip"].extend(new_addr_list)
+
+            # Update the address book
+            success, error_msg = _update_address_group_old_api(client, current_addrbook)
+            if success:
+                # Add all new IPs to newly_blocked
+                for addr in new_addr_list:
+                    ip_str = addr["ip_addr"]
+                    if addr["netmask"] != "32":
+                        ip_str = f"{ip_str}/{addr['netmask']}"
+                    result["newly_blocked"].append(ip_str)
+            else:
+                # Add all attempted IPs to error list
+                for addr in new_addr_list:
+                    ip_str = addr["ip_addr"]
+                    if addr["netmask"] != "32":
+                        ip_str = f"{ip_str}/{addr['netmask']}"
+                    result["error_with_block"].append(
+                        {"ip": ip_str, "error": error_msg}
+                    )
+
+    except Exception as err:
+        result["error_message"] = str(err)
+        logger.error(f"Error in old API block_ip: {err}")
+
+    return result
+
+
+def _unblock_ip_old_api(client, group_name, ip_list):
+    """Unblock IPs using old API method"""
+    result = {"not_exist": [], "newly_unblocked": [], "error_with_unblock": []}
+
+    try:
+        # Get current address book
+        current_addrbook, has_error = _get_address_group_old_api(client, group_name)
+        if has_error:
+            # API call failed, raise error instead of proceeding
+            error_msg = f"Failed to retrieve address group {group_name} from API"
+            raise ConnectorError(error_msg)
+
+        if not current_addrbook or not current_addrbook.get("ip"):
+            result["not_exist"] = ip_list
+            return result
+
+        # Create a mapping of existing IPs
+        existing_ips = {}
+        remaining_ips = []
+
+        for ip_entry in current_addrbook["ip"]:
+            if isinstance(ip_entry, dict) and "ip_addr" in ip_entry:
+                ip_addr = ip_entry["ip_addr"]
+                netmask = ip_entry.get("netmask", "32")
+                if netmask != "32":
+                    ip_key = f"{ip_addr}/{netmask}"
+                else:
+                    ip_key = ip_addr
+                existing_ips[ip_key] = ip_entry
+                remaining_ips.append(ip_entry)
+
+        # Process each IP to unblock
+        ips_to_remove = []
+        for ip in ip_list:
+            ip = ip.strip()
+            if not ip:
+                continue
+
+            if ip in existing_ips:
+                # Mark for removal
+                ips_to_remove.append(existing_ips[ip])
+                result["newly_unblocked"].append(ip)
+            else:
+                result["not_exist"].append(ip)
+
+        # Remove IPs from the list
+        if ips_to_remove:
+            for ip_to_remove in ips_to_remove:
+                if ip_to_remove in remaining_ips:
+                    remaining_ips.remove(ip_to_remove)
+
+            # Update the address book with remaining IPs
+            current_addrbook["ip"] = remaining_ips
+            success, error_msg = _update_address_group_old_api(client, current_addrbook)
+
+            if not success:
+                # Move newly_unblocked IPs to error list
+                for ip in result["newly_unblocked"]:
+                    result["error_with_unblock"].append({"ip": ip, "error": error_msg})
+                result["newly_unblocked"] = []
+
+    except Exception as err:
+        logger.error(f"Error in old API unblock_ip: {err}")
+        raise ConnectorError(f"Error unblocking IPs with old API: {err}")
 
     return result
 
